@@ -1,0 +1,9 @@
+[package]
+name = "jockbot_ants_bot"
+version = "0.1.0"
+authors = ["jockbert"]
+edition = "2018"
+
+[dependencies]
+ants_ai_challenge_api = { path = "../ants_ai_challenge_api" }
+rand = "0.6"
