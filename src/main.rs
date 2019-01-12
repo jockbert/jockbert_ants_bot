@@ -18,7 +18,7 @@ impl Agent for FooAgent {
         // do nothing in prep
     }
 
-    fn make_turn(&mut self, _params: &GameParameters, world: &WorldState) -> Orders {
+    fn make_turn(&mut self, world: &WorldState) -> Orders {
         world
             .live_ants_for_player(0)
             .iter()
@@ -27,7 +27,7 @@ impl Agent for FooAgent {
             .collect()
     }
 
-    fn at_end(&mut self, _params: &GameParameters, _world: &WorldState, _score: Score) {
+    fn at_end(&mut self,  _world: &WorldState, _score: Score) {
         // do nothing at end
     }
 }
