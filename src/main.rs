@@ -14,21 +14,17 @@ fn random_direction() -> Direction {
 }
 
 impl Agent for FooAgent {
-    fn prepare(&mut self, _params: &GameParameters) {
+    fn prepare(&mut self, _params: GameParameters) {
         // do nothing in prep
     }
 
-    fn make_turn(&mut self, world: &WorldState) -> Orders {
+    fn make_turn(&mut self, world: WorldState, _turn_count: u32) -> Orders {
         world
             .live_ants_for_player(0)
             .iter()
             // TODO: fix strange copy of position
             .map(|p| (pos(p.row, p.col), random_direction()))
             .collect()
-    }
-
-    fn at_end(&mut self,  _world: &WorldState, _score: Score) {
-        // do nothing at end
     }
 }
 

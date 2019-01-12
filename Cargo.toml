@@ -5,5 +5,5 @@ authors = ["jockbert"]
 edition = "2018"
 
 [dependencies]
-ants_ai_challenge_api = { git = "https://github.com/jockbert/ants_ai_challenge_api" }
+ants_ai_challenge_api = { git = "https://github.com/jockbert/ants_ai_challenge_api", branch = "master" }
 rand = "0.6"

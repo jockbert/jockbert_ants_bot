@@ -1,7 +1,7 @@
 [[package]]
 name = "ants_ai_challenge_api"
 version = "0.1.0"
-source = "git+https://github.com/jockbert/ants_ai_challenge_api#5a893127ce455818b072831f221d6fc741a7572e"
+source = "git+https://github.com/jockbert/ants_ai_challenge_api#3785b1e227e64172932e6dec6ee8bffdf1f59581"
 dependencies = [
  "indoc 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
