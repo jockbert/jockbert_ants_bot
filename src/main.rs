@@ -6,11 +6,17 @@ use rand::Rng;
 
 struct FooAgent {}
 
+/// Generates a random direction.
 fn random_direction() -> Direction {
     let mut rng = rand::thread_rng();
     let directions = [North, South, East, West];
     let index = rng.gen_range(0 as usize, directions.len());
     *directions.get(index).expect("no out of bounds")
+}
+
+/// Generates a random order, given a position.
+fn random_order(pos: &Position) -> Order {
+    (pos.clone(), random_direction())
 }
 
 impl Agent for FooAgent {
@@ -22,8 +28,7 @@ impl Agent for FooAgent {
         world
             .live_ants_for_player(0)
             .iter()
-            // TODO: fix strange copy of position
-            .map(|p| (pos(p.row, p.col), random_direction()))
+            .map(random_order)
             .collect()
     }
 }
