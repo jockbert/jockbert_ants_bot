@@ -1,6 +1,8 @@
 use ants_ai_challenge_api::*;
 use rand::Rng;
 
+mod utilities;
+
 pub struct FooAgent {}
 
 /// Generates a random direction.
