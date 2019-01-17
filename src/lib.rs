@@ -21,7 +21,11 @@ impl Agent for FooAgent {
         // do nothing in prep
     }
 
-    fn make_turn(&mut self, world: WorldState, _turn_count: u32) -> Orders {
+    fn make_turn(
+        &mut self,
+        world: WorldState,
+        _turn_count: u32,
+    ) -> Orders {
         world
             .live_ants_for_player(0)
             .iter()

@@ -1,0 +1,4 @@
+max_width = 70
+format_doc_comments = true
+wrap_comments = true
+match_arm_blocks = false
