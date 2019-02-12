@@ -1,4 +1,6 @@
+use crate::world_sim::*;
 use ants_ai_challenge_api::*;
+use std::collections::HashSet;
 
 #[cfg(test)]
 fn order(row: u16, col: u16, dir: Direction) -> Order {
@@ -11,8 +13,6 @@ pub struct AntCrashFilter {
     size: Position,
 }
 
-use std::collections::HashSet;
-
 impl AntCrashFilter {
     pub fn new(world: WorldState, size: Position) -> AntCrashFilter {
         AntCrashFilter {
@@ -20,21 +20,6 @@ impl AntCrashFilter {
             world: world,
             size: size,
         }
-    }
-
-    #[cfg(test)]
-    pub fn add_order(
-        self,
-        row: u16,
-        col: u16,
-        dir: Direction,
-    ) -> Self {
-        self.add(order(row, col, dir))
-    }
-
-    pub fn add(mut self, order: Order) -> Self {
-        self.given_orders.push(order);
-        self
     }
 
     fn target_position(&self, order: &Order) -> Position {
@@ -51,8 +36,15 @@ impl AntCrashFilter {
             (p, East) => pos(p.row, p.col + 1),
         }
     }
+}
 
-    pub fn get_orders(self) -> Orders {
+impl WorldStep for AntCrashFilter {
+    fn add_order(mut self, order: Order) -> Self {
+        self.given_orders.push(order);
+        self
+    }
+
+    fn get_orders(self) -> Orders {
         let mut taken_targets: HashSet<Position> = HashSet::new();
 
         let ordered_ants: Vec<Position> =
@@ -101,8 +93,8 @@ mod tests {
             ),
             pos(2, 2),
         )
-        .add_order(0, 0, South)
-        .add_order(1, 1, West)
+        .add_order(order(0, 0, South))
+        .add_order(order(1, 1, West))
         .get_orders();
 
         let expected = vec![order(0, 0, South)];
@@ -119,8 +111,8 @@ mod tests {
             ),
             pos(2, 2),
         )
-        .add_order(1, 1, West)
-        .add_order(0, 0, South)
+        .add_order(order(1, 1, West))
+        .add_order(order(0, 0, South))
         .get_orders();
 
         let expected = vec![order(1, 1, West)];
@@ -137,8 +129,8 @@ mod tests {
             ),
             pos(2, 2),
         )
-        .add_order(0, 0, South)
-        .add_order(1, 0, East)
+        .add_order(order(0, 0, South))
+        .add_order(order(1, 0, East))
         .get_orders();
 
         let expected = vec![order(0, 0, South), order(1, 0, East)];
@@ -155,7 +147,7 @@ mod tests {
             ),
             pos(2, 2),
         )
-        .add_order(0, 0, South)
+        .add_order(order(0, 0, South))
         .get_orders();
 
         let expected: Vec<Order> = vec![];
@@ -171,10 +163,10 @@ mod tests {
             ),
             pos(2, 4),
         )
-        .add_order(0, 0, East)
-        .add_order(0, 3, West)
-        .add_order(1, 1, West)
-        .add_order(1, 2, East)
+        .add_order(order(0, 0, East))
+        .add_order(order(0, 3, West))
+        .add_order(order(1, 1, West))
+        .add_order(order(1, 2, East))
         .get_orders();
 
         let expected: Vec<Order> = vec![

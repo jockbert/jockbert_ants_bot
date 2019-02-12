@@ -2,12 +2,15 @@ use ants_ai_challenge_api::*;
 use rand::Rng;
 
 mod ant_crash_filter;
+mod world_sim;
 
 #[cfg(test)]
 mod utilities;
 
 use crate::ant_crash_filter::AntCrashFilter;
+use crate::world_sim::WorldStep;
 
+#[derive(Default)]
 pub struct FooAgent {
     params: GameParameters,
 }
@@ -23,24 +26,6 @@ fn random_direction() -> Direction {
 /// Generates a random order, given a position.
 fn random_order(pos: &Position) -> Order {
     (pos.clone(), random_direction())
-}
-
-impl FooAgent {
-    pub fn new() -> FooAgent {
-        FooAgent {
-            params: GameParameters {
-                loadtime_ms: 0,
-                turntime_ms: 0,
-                rows: 0,
-                cols: 0,
-                turns: 0,
-                viewradius2: 0,
-                attackradius2: 0,
-                spawnradius2: 0,
-                player_seed: 0,
-            },
-        }
-    }
 }
 
 impl Agent for FooAgent {
@@ -64,7 +49,7 @@ impl Agent for FooAgent {
             my_ants.iter().map(random_order).collect();
 
         for order in orders {
-            crash_filter = crash_filter.add(order.clone());
+            crash_filter = crash_filter.add_order(order.clone());
         }
 
         crash_filter.get_orders()

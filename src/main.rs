@@ -5,6 +5,6 @@ use ants_ai_challenge_api::run_game;
 use jockbot_ants_bot::FooAgent;
 
 fn main() {
-    let mut agent = FooAgent::new();
+    let mut agent = FooAgent::default();
     run_game(&mut agent);
 }
