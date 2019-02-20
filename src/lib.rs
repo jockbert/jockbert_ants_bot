@@ -8,7 +8,7 @@ mod world_sim;
 mod utilities;
 
 use crate::ant_crash_filter::AntCrashFilter;
-use crate::world_sim::WorldStep;
+use crate::world_sim::*;
 
 #[derive(Default)]
 pub struct FooAgent {
@@ -40,16 +40,18 @@ impl Agent for FooAgent {
     ) -> Orders {
         let my_ants = world.live_ants_for_player(0);
 
-        let mut crash_filter = AntCrashFilter::new(
+        let world_step = &mut BasicWorldSim::new(
             world,
             pos(self.params.rows as u16, self.params.cols as u16),
         );
+
+        let mut crash_filter = AntCrashFilter::new(world_step);
 
         let orders: Vec<Order> =
             my_ants.iter().map(random_order).collect();
 
         for order in orders {
-            crash_filter = crash_filter.add_order(order.clone());
+            crash_filter.add_order(order.clone());
         }
 
         crash_filter.get_orders()

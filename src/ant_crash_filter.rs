@@ -7,52 +7,47 @@ fn order(row: u16, col: u16, dir: Direction) -> Order {
     (pos(row, col), dir)
 }
 
-pub struct AntCrashFilter {
-    given_orders: Vec<Order>,
-    world: WorldState,
-    size: Position,
+pub struct AntCrashFilter<'a> {
+    delegate: &'a mut WorldStep,
 }
 
-impl AntCrashFilter {
-    pub fn new(world: WorldState, size: Position) -> AntCrashFilter {
-        AntCrashFilter {
-            given_orders: vec![],
-            world: world,
-            size: size,
-        }
+impl<'a> AntCrashFilter<'a> {
+    pub fn new(delegate: &'a mut WorldStep) -> AntCrashFilter {
+        AntCrashFilter { delegate: delegate }
     }
 
     fn target_position(&self, order: &Order) -> Position {
         match order {
             (p, South) => pos(p.row + 1, p.col),
             (p, North) => pos(
-                (p.row + self.size.row - 1) % self.size.row,
+                (p.row + self.size().row - 1) % self.size().row,
                 p.col,
             ),
             (p, West) => pos(
                 p.row,
-                (p.col + self.size.col - 1) % self.size.col,
+                (p.col + self.size().col - 1) % self.size().col,
             ),
             (p, East) => pos(p.row, p.col + 1),
         }
     }
 }
 
-impl WorldStep for AntCrashFilter {
-    fn add_order(mut self, order: Order) -> Self {
-        self.given_orders.push(order);
+impl<'a> WorldStep for AntCrashFilter<'a> {
+    fn add_order(&mut self, order: Order) -> &mut WorldStep {
+        self.delegate.add_order(order);
         self
     }
 
-    fn get_orders(self) -> Orders {
+    fn get_orders(&mut self) -> Orders {
         let mut taken_targets: HashSet<Position> = HashSet::new();
 
-        let ordered_ants: Vec<Position> =
-            self.given_orders.iter().map(|o| o.0.clone()).collect();
+        let given_orders = self.delegate.get_orders();
 
-        let all_my_ants = self.world.live_ants_for_player(0);
+        let ordered_ants: Vec<_> =
+            given_orders.iter().map(|o| o.0.clone()).collect();
 
-        let stationary_ants: Vec<Position> = all_my_ants
+        let stationary_ants: Vec<_> = self
+            .all_my_ants()
             .iter()
             .filter(|ant| !ordered_ants.contains(ant))
             .cloned()
@@ -61,7 +56,7 @@ impl WorldStep for AntCrashFilter {
         for ant in stationary_ants {
             taken_targets.insert(ant);
         }
-        self.given_orders
+        given_orders
             .iter()
             .filter(|order| {
                 let target = self.target_position(order);
@@ -76,6 +71,14 @@ impl WorldStep for AntCrashFilter {
             .cloned()
             .collect()
     }
+
+    fn size(&self) -> Position {
+        self.delegate.size()
+    }
+
+    fn all_my_ants(&self) -> Vec<Position> {
+        self.delegate.all_my_ants()
+    }
 }
 
 #[cfg(test)]
@@ -86,16 +89,17 @@ mod tests {
 
     #[test]
     fn collision_order_precedence() {
-        let actual = AntCrashFilter::new(
+        let inner = &mut BasicWorldSim::new(
             world(
                 "a-
                  -a",
             ),
             pos(2, 2),
-        )
-        .add_order(order(0, 0, South))
-        .add_order(order(1, 1, West))
-        .get_orders();
+        );
+        let actual = AntCrashFilter::new(inner)
+            .add_order(order(0, 0, South))
+            .add_order(order(1, 1, West))
+            .get_orders();
 
         let expected = vec![order(0, 0, South)];
 
@@ -104,16 +108,17 @@ mod tests {
 
     #[test]
     fn collision_order_precedence_2() {
-        let actual = AntCrashFilter::new(
+        let inner = &mut BasicWorldSim::new(
             world(
                 "a-
                  -a",
             ),
             pos(2, 2),
-        )
-        .add_order(order(1, 1, West))
-        .add_order(order(0, 0, South))
-        .get_orders();
+        );
+        let actual = AntCrashFilter::new(inner)
+            .add_order(order(1, 1, West))
+            .add_order(order(0, 0, South))
+            .get_orders();
 
         let expected = vec![order(1, 1, West)];
 
@@ -122,16 +127,18 @@ mod tests {
 
     #[test]
     fn move_out_of_way_as_later_order() {
-        let actual = AntCrashFilter::new(
+        let inner = &mut BasicWorldSim::new(
             world(
                 "a-
                  a-",
             ),
             pos(2, 2),
-        )
-        .add_order(order(0, 0, South))
-        .add_order(order(1, 0, East))
-        .get_orders();
+        );
+
+        let actual = AntCrashFilter::new(inner)
+            .add_order(order(0, 0, South))
+            .add_order(order(1, 0, East))
+            .get_orders();
 
         let expected = vec![order(0, 0, South), order(1, 0, East)];
 
@@ -140,15 +147,17 @@ mod tests {
 
     #[test]
     fn collision_with_stationary_ant() {
-        let actual = AntCrashFilter::new(
+        let inner = &mut BasicWorldSim::new(
             world(
                 "a-
-             a-",
+                 a-",
             ),
             pos(2, 2),
-        )
-        .add_order(order(0, 0, South))
-        .get_orders();
+        );
+
+        let actual = AntCrashFilter::new(inner)
+            .add_order(order(0, 0, South))
+            .get_orders();
 
         let expected: Vec<Order> = vec![];
         assert_eq!(expected, actual);
@@ -156,18 +165,19 @@ mod tests {
 
     #[test]
     fn no_ant_interference() {
-        let actual = AntCrashFilter::new(
+        let inner = &mut BasicWorldSim::new(
             world(
                 "a--a
-             -aa-",
+                 -aa-",
             ),
             pos(2, 4),
-        )
-        .add_order(order(0, 0, East))
-        .add_order(order(0, 3, West))
-        .add_order(order(1, 1, West))
-        .add_order(order(1, 2, East))
-        .get_orders();
+        );
+        let actual = AntCrashFilter::new(inner)
+            .add_order(order(0, 0, East))
+            .add_order(order(0, 3, West))
+            .add_order(order(1, 1, West))
+            .add_order(order(1, 2, East))
+            .get_orders();
 
         let expected: Vec<Order> = vec![
             order(0, 0, East),
