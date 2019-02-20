@@ -1,4 +1,4 @@
-use crate::world_sim::*;
+use crate::world_step::*;
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 
@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn collision_order_precedence() {
-        let inner = &mut BasicWorldSim::new(
+        let inner = &mut BasicWorldStep::new(
             world(
                 "a-
                  -a",
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn collision_order_precedence_2() {
-        let inner = &mut BasicWorldSim::new(
+        let inner = &mut BasicWorldStep::new(
             world(
                 "a-
                  -a",
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn move_out_of_way_as_later_order() {
-        let inner = &mut BasicWorldSim::new(
+        let inner = &mut BasicWorldStep::new(
             world(
                 "a-
                  a-",
@@ -147,7 +147,7 @@ mod tests {
 
     #[test]
     fn collision_with_stationary_ant() {
-        let inner = &mut BasicWorldSim::new(
+        let inner = &mut BasicWorldStep::new(
             world(
                 "a-
                  a-",
@@ -165,7 +165,7 @@ mod tests {
 
     #[test]
     fn no_ant_interference() {
-        let inner = &mut BasicWorldSim::new(
+        let inner = &mut BasicWorldStep::new(
             world(
                 "a--a
                  -aa-",

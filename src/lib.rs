@@ -2,13 +2,13 @@ use ants_ai_challenge_api::*;
 use rand::Rng;
 
 mod ant_crash_filter;
-mod world_sim;
+mod world_step;
 
 #[cfg(test)]
 mod utilities;
 
 use crate::ant_crash_filter::AntCrashFilter;
-use crate::world_sim::*;
+use crate::world_step::*;
 
 #[derive(Default)]
 pub struct FooAgent {
@@ -40,7 +40,7 @@ impl Agent for FooAgent {
     ) -> Orders {
         let my_ants = world.live_ants_for_player(0);
 
-        let world_step = &mut BasicWorldSim::new(
+        let world_step = &mut BasicWorldStep::new(
             world,
             pos(self.params.rows as u16, self.params.cols as u16),
         );

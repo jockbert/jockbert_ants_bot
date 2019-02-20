@@ -14,15 +14,15 @@ pub trait WorldStep {
     fn all_my_ants(&self) -> Vec<Position>;
 }
 
-pub struct BasicWorldSim {
+pub struct BasicWorldStep {
     given_orders: Vec<Order>,
     world: WorldState,
     size: Position,
 }
 
-impl BasicWorldSim {
-    pub fn new(world: WorldState, size: Position) -> BasicWorldSim {
-        BasicWorldSim {
+impl BasicWorldStep {
+    pub fn new(world: WorldState, size: Position) -> BasicWorldStep {
+        BasicWorldStep {
             given_orders: vec![],
             world: world,
             size: size,
@@ -30,7 +30,7 @@ impl BasicWorldSim {
     }
 }
 
-impl WorldStep for BasicWorldSim {
+impl WorldStep for BasicWorldStep {
     fn add_order(&mut self, order: Order) -> &mut WorldStep {
         self.given_orders.push(order);
         self
