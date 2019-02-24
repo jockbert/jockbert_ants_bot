@@ -2,11 +2,6 @@ use crate::world_step::*;
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 
-#[cfg(test)]
-fn order(row: u16, col: u16, dir: Direction) -> Order {
-    (pos(row, col), dir)
-}
-
 pub struct AntCrashFilter<'a> {
     delegate: &'a mut WorldStep,
 }
@@ -86,6 +81,10 @@ mod tests {
 
     use super::*;
     use crate::utilities::world;
+
+    fn order(row: u16, col: u16, dir: Direction) -> Order {
+        (pos(row, col), dir)
+    }
 
     #[test]
     fn collision_order_precedence() {
