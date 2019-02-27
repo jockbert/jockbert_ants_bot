@@ -25,7 +25,7 @@ fn random_direction() -> Direction {
 
 /// Generates a random order, given a position.
 fn random_order(pos: &Position) -> Order {
-    (pos.clone(), random_direction())
+    pos.order(random_direction())
 }
 
 impl Agent for FooAgent {

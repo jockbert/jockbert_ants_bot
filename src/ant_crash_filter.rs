@@ -10,21 +10,6 @@ impl<'a> AntCrashFilter<'a> {
     pub fn new(delegate: &'a mut WorldStep) -> AntCrashFilter {
         AntCrashFilter { delegate: delegate }
     }
-
-    fn target_position(&self, order: &Order) -> Position {
-        match order {
-            (p, South) => pos(p.row + 1, p.col),
-            (p, North) => pos(
-                (p.row + self.size().row - 1) % self.size().row,
-                p.col,
-            ),
-            (p, West) => pos(
-                p.row,
-                (p.col + self.size().col - 1) % self.size().col,
-            ),
-            (p, East) => pos(p.row, p.col + 1),
-        }
-    }
 }
 
 impl<'a> WorldStep for AntCrashFilter<'a> {
@@ -39,7 +24,7 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
         let given_orders = self.delegate.get_orders();
 
         let ordered_ants: Vec<_> =
-            given_orders.iter().map(|o| o.0.clone()).collect();
+            given_orders.iter().map(|o| o.pos.clone()).collect();
 
         let stationary_ants: Vec<_> = self
             .all_my_ants()
@@ -54,7 +39,7 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
         given_orders
             .iter()
             .filter(|order| {
-                let target = self.target_position(order);
+                let target = order.target_pos(&self.size());
                 let target_not_taken =
                     !taken_targets.contains(&target);
 
@@ -83,7 +68,7 @@ mod tests {
     use crate::utilities::world;
 
     fn order(row: u16, col: u16, dir: Direction) -> Order {
-        (pos(row, col), dir)
+        pos(row, col).order(dir)
     }
 
     #[test]
