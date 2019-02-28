@@ -12,6 +12,8 @@ pub trait WorldStep {
     fn size(&self) -> Position;
 
     fn all_my_ants(&self) -> Vec<Position>;
+
+    fn available_directions(&self, pos: Position) -> Vec<Direction>;
 }
 
 pub struct BasicWorldStep {
@@ -46,5 +48,9 @@ impl WorldStep for BasicWorldStep {
 
     fn all_my_ants(&self) -> Vec<Position> {
         self.world.live_ants_for_player(0)
+    }
+
+    fn available_directions(&self, _pos: Position) -> Vec<Direction> {
+        vec![North, South, East, West]
     }
 }

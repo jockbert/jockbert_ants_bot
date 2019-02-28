@@ -59,6 +59,10 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
     fn all_my_ants(&self) -> Vec<Position> {
         self.delegate.all_my_ants()
     }
+
+    fn available_directions(&self, pos: Position) -> Vec<Direction> {
+        self.delegate.available_directions(pos)
+    }
 }
 
 #[cfg(test)]

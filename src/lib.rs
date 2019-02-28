@@ -16,16 +16,10 @@ pub struct FooAgent {
 }
 
 /// Generates a random direction.
-fn random_direction() -> Direction {
+fn random_direction(dirs: Vec<Direction>) -> Direction {
     let mut rng = rand::thread_rng();
-    let directions = [North, South, East, West];
-    let index = rng.gen_range(0 as usize, directions.len());
-    *directions.get(index).expect("no out of bounds")
-}
-
-/// Generates a random order, given a position.
-fn random_order(pos: &Position) -> Order {
-    pos.order(random_direction())
+    let index = rng.gen_range(0 as usize, dirs.len());
+    *dirs.get(index).expect("no out of bounds")
 }
 
 impl Agent for FooAgent {
@@ -47,8 +41,14 @@ impl Agent for FooAgent {
 
         let mut crash_filter = AntCrashFilter::new(world_step);
 
-        let orders: Vec<Order> =
-            my_ants.iter().map(random_order).collect();
+        let orders: Vec<Order> = my_ants
+            .iter()
+            .map(|ant| {
+                ant.order(random_direction(
+                    crash_filter.available_directions(ant.clone()),
+                ))
+            })
+            .collect();
 
         for order in orders {
             crash_filter.add_order(order.clone());
