@@ -5,6 +5,7 @@ use ants_ai_challenge_api::*;
 /// map with coordinate (0,0) as the first
 /// character.
 ///
+/// ```
 /// .   = land
 /// %   = water
 /// *   = food
@@ -13,6 +14,7 @@ use ants_ai_challenge_api::*;
 /// a-j = ant
 /// A-J = ant on its own hill
 /// 0-9 = hill
+/// ```
 ///
 pub fn world(multi_line_map: &'static str) -> WorldState {
     let map = trim_lines(multi_line_map);
@@ -61,6 +63,25 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
         '%' => world.water(pos),
         _ => world,
     })
+}
+
+/// Calculates the size of a given textual multi line map. The
+/// following example map has size (3,2):
+///
+/// ```
+/// aa
+/// bb
+/// cc
+/// ```
+pub fn size_of_world(multi_line_map: &'static str) -> Position {
+    let trimmed_map = trim_lines(multi_line_map);
+    let rows = trimmed_map.lines().count() as u16;
+    let cols = trimmed_map
+        .lines()
+        .map(|line| line.len() as u16)
+        .fold(0 as u16, u16::max);
+
+    pos(rows, cols)
 }
 
 /// Trim away left and right padding of multi line string
@@ -115,6 +136,20 @@ mod tests {
                  %----§--"
             )
         )
+    }
+
+    #[test]
+    fn size_of_world_success() {
+        assert_eq![
+            pos(3, 2),
+            size_of_world(
+                "a
+                 bb
+
+                 c
+                 "
+            )
+        ]
     }
 
     #[test]
