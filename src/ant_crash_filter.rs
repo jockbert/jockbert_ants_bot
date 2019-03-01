@@ -71,10 +71,6 @@ mod tests {
     use super::*;
     use crate::utilities::world;
 
-    fn order(row: u16, col: u16, dir: Direction) -> Order {
-        pos(row, col).order(dir)
-    }
-
     #[test]
     fn collision_order_precedence() {
         let inner = &mut BasicWorldStep::new(
@@ -85,11 +81,11 @@ mod tests {
             pos(2, 2),
         );
         let actual = AntCrashFilter::new(inner)
-            .add_order(order(0, 0, South))
-            .add_order(order(1, 1, West))
+            .add_order(pos(0, 0).order(South))
+            .add_order(pos(1, 1).order(West))
             .get_orders();
 
-        let expected = vec![order(0, 0, South)];
+        let expected = vec![pos(0, 0).order(South)];
 
         assert_eq!(expected, actual);
     }
@@ -104,11 +100,11 @@ mod tests {
             pos(2, 2),
         );
         let actual = AntCrashFilter::new(inner)
-            .add_order(order(1, 1, West))
-            .add_order(order(0, 0, South))
+            .add_order(pos(1, 1).order(West))
+            .add_order(pos(0, 0).order(South))
             .get_orders();
 
-        let expected = vec![order(1, 1, West)];
+        let expected = vec![pos(1, 1).order(West)];
 
         assert_eq!(expected, actual);
     }
@@ -124,11 +120,12 @@ mod tests {
         );
 
         let actual = AntCrashFilter::new(inner)
-            .add_order(order(0, 0, South))
-            .add_order(order(1, 0, East))
+            .add_order(pos(0, 0).order(South))
+            .add_order(pos(1, 0).order(East))
             .get_orders();
 
-        let expected = vec![order(0, 0, South), order(1, 0, East)];
+        let expected =
+            vec![pos(0, 0).order(South), pos(1, 0).order(East)];
 
         assert_eq!(expected, actual);
     }
@@ -144,7 +141,7 @@ mod tests {
         );
 
         let actual = AntCrashFilter::new(inner)
-            .add_order(order(0, 0, South))
+            .add_order(pos(0, 0).order(South))
             .get_orders();
 
         let expected: Vec<Order> = vec![];
@@ -161,17 +158,17 @@ mod tests {
             pos(2, 4),
         );
         let actual = AntCrashFilter::new(inner)
-            .add_order(order(0, 0, East))
-            .add_order(order(0, 3, West))
-            .add_order(order(1, 1, West))
-            .add_order(order(1, 2, East))
+            .add_order(pos(0, 0).order(East))
+            .add_order(pos(0, 3).order(West))
+            .add_order(pos(1, 1).order(West))
+            .add_order(pos(1, 2).order(East))
             .get_orders();
 
         let expected: Vec<Order> = vec![
-            order(0, 0, East),
-            order(0, 3, West),
-            order(1, 1, West),
-            order(1, 2, East),
+            pos(0, 0).order(East),
+            pos(0, 3).order(West),
+            pos(1, 1).order(West),
+            pos(1, 2).order(East),
         ];
         assert_eq!(expected, actual);
     }
