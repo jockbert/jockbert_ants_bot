@@ -68,8 +68,8 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
 fn trim_lines(multi_lines: &'static str) -> String {
     let result: Vec<_> = multi_lines
         .lines()
-        .filter(|l| !l.is_empty())
         .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
         .collect();
 
     result.join("\n")
@@ -119,11 +119,12 @@ mod tests {
 
     #[test]
     fn trim_lines_success() {
+        // second line contains whitespace
         assert_eq!(
             "a\nb\nc",
             trim_lines(
                 "a
-
+                 
                  b
                  c  "
             )
