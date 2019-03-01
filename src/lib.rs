@@ -45,7 +45,7 @@ impl Agent for FooAgent {
             .iter()
             .map(|ant| {
                 ant.order(random_direction(
-                    crash_filter.available_directions(ant.clone()),
+                    crash_filter.available_directions(ant),
                 ))
             })
             .collect();

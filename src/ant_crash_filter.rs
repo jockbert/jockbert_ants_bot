@@ -18,7 +18,7 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
         self
     }
 
-    fn get_orders(&mut self) -> Orders {
+    fn get_orders(&self) -> Orders {
         let mut taken_targets: HashSet<Position> = HashSet::new();
 
         let given_orders = self.delegate.get_orders();
@@ -40,19 +40,15 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
             .iter()
             .filter(|order| {
                 let target = order.target_pos(&self.size());
-                let target_not_taken =
-                    !taken_targets.contains(&target);
-
-                if target_not_taken {
-                    taken_targets.insert(target);
-                }
-                target_not_taken
+                let keep_order = !taken_targets.contains(&target);
+                taken_targets.insert(target);
+                keep_order
             })
             .cloned()
             .collect()
     }
 
-    fn size(&self) -> Position {
+    fn size(&self) -> &Position {
         self.delegate.size()
     }
 
@@ -60,8 +56,24 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
         self.delegate.all_my_ants()
     }
 
-    fn available_directions(&self, pos: Position) -> Vec<Direction> {
-        self.delegate.available_directions(pos)
+    fn available_directions(&self, p: &Position) -> Vec<Direction> {
+        let known_targets: Vec<_> = self
+            .delegate
+            .get_orders()
+            .iter()
+            .map(|order| order.target_pos(&self.size()))
+            .collect();
+
+        self.delegate
+            .available_directions(p)
+            .iter()
+            .cloned()
+            .filter(|dir| {
+                let dir_target =
+                    p.order(*dir).target_pos(self.size());
+                !known_targets.contains(&dir_target)
+            })
+            .collect()
     }
 }
 
@@ -71,23 +83,62 @@ mod tests {
     use super::*;
     use crate::utilities::world;
 
+    /// Assert that dut.get_orders equals expected orders.
+    macro_rules! assert_orders {
+        ($cut:expr) => {
+            assert_eq![$cut.get_orders(),vec![]];
+        };
+
+        ($cut:expr, $( $order:expr ),*) => {
+            let mut expected_orders = Vec::new();
+            $(
+                expected_orders.push($order);
+            )*
+            assert_eq!($cut.get_orders(),expected_orders);
+        };
+    }
+
+    /// Assert that dut.available_directions equals
+    /// expected directions.
+    macro_rules! assert_dirs {
+        ($cut:expr, $position:expr, $( $dir:expr ),*) => {
+            let mut expected_dirs = Vec::new();
+            $(
+                expected_dirs.push($dir);
+            )*
+            assert_eq!($cut.available_directions($position), expected_dirs);
+        };
+    }
+
     #[test]
     fn collision_order_precedence() {
         let inner = &mut BasicWorldStep::new(
             world(
-                "a-
-                 -a",
+                "a--
+                 -a-",
             ),
-            pos(2, 2),
+            pos(2, 3),
         );
-        let actual = AntCrashFilter::new(inner)
-            .add_order(pos(0, 0).order(South))
-            .add_order(pos(1, 1).order(West))
-            .get_orders();
 
-        let expected = vec![pos(0, 0).order(South)];
+        let mut filter = AntCrashFilter::new(inner);
 
-        assert_eq!(expected, actual);
+        let top_ant = &pos(0, 0);
+        let bottom_ant = &pos(1, 1);
+
+        // All directions are available
+        assert_dirs!(filter, top_ant, North, South, East, West);
+
+        // Add first order
+        filter.add_order(top_ant.order(South));
+
+        // West is unavailable for second ant
+        assert_dirs![filter, bottom_ant, North, South, East];
+
+        // Ignore unavailable direction
+        filter.add_order(bottom_ant.order(West));
+
+        // Only first order is available
+        assert_orders!(filter, top_ant.order(South));
     }
 
     #[test]
@@ -99,14 +150,24 @@ mod tests {
             ),
             pos(2, 2),
         );
-        let actual = AntCrashFilter::new(inner)
-            .add_order(pos(1, 1).order(West))
-            .add_order(pos(0, 0).order(South))
-            .get_orders();
 
-        let expected = vec![pos(1, 1).order(West)];
+        let mut filter = AntCrashFilter::new(inner);
 
-        assert_eq!(expected, actual);
+        let top_ant = &pos(0, 0);
+        let bottom_ant = &pos(1, 1);
+
+        // Add first order, targets position (1,0)
+        filter.add_order(bottom_ant.order(West));
+
+        // Neither North nor South works for top ant, since the map
+        // coordinates wrap around, both leads to position (1,0).
+        assert_dirs![filter, top_ant, East, West];
+
+        // Try add invalid order
+        filter.add_order(top_ant.order(South));
+
+        // Only first order is available
+        assert_orders![filter, bottom_ant.order(West)];
     }
 
     #[test]
@@ -119,33 +180,48 @@ mod tests {
             pos(2, 2),
         );
 
-        let actual = AntCrashFilter::new(inner)
-            .add_order(pos(0, 0).order(South))
-            .add_order(pos(1, 0).order(East))
-            .get_orders();
+        let mut filter = AntCrashFilter::new(inner);
 
-        let expected =
-            vec![pos(0, 0).order(South), pos(1, 0).order(East)];
+        let top_ant = &pos(0, 0);
+        let bottom_ant = &pos(1, 0);
 
-        assert_eq!(expected, actual);
+        filter
+            .add_order(top_ant.order(South))
+            .add_order(bottom_ant.order(East));
+
+        // No orders are filtered out since the first
+        // order is possible after the second order is
+        // executed.
+        assert_orders!(
+            filter,
+            top_ant.order(South),
+            bottom_ant.order(East)
+        );
     }
 
     #[test]
     fn collision_with_stationary_ant() {
         let inner = &mut BasicWorldStep::new(
             world(
-                "a-
-                 a-",
+                "aa
+                 aa",
             ),
             pos(2, 2),
         );
 
-        let actual = AntCrashFilter::new(inner)
-            .add_order(pos(0, 0).order(South))
-            .get_orders();
+        let mut filter = AntCrashFilter::new(inner);
 
-        let expected: Vec<Order> = vec![];
-        assert_eq!(expected, actual);
+        let top_left_ant = &pos(0, 0);
+
+        // All directions are possible since the actions of
+        // the other ants are not known at the moment.
+        assert_dirs!(filter, top_left_ant, North, South, East, West);
+
+        filter.add_order(top_left_ant.order(South));
+
+        // The added order is filtered out since no
+        // of the other ants has moved.
+        assert_orders!(filter);
     }
 
     #[test]
@@ -157,19 +233,22 @@ mod tests {
             ),
             pos(2, 4),
         );
-        let actual = AntCrashFilter::new(inner)
+        let mut filter = AntCrashFilter::new(inner);
+
+        // All orders are valid and there should be no interference.
+        filter
             .add_order(pos(0, 0).order(East))
             .add_order(pos(0, 3).order(West))
             .add_order(pos(1, 1).order(West))
-            .add_order(pos(1, 2).order(East))
-            .get_orders();
+            .add_order(pos(1, 2).order(East));
 
-        let expected: Vec<Order> = vec![
+        // No orders are filtered out
+        assert_orders!(
+            filter,
             pos(0, 0).order(East),
             pos(0, 3).order(West),
             pos(1, 1).order(West),
-            pos(1, 2).order(East),
-        ];
-        assert_eq!(expected, actual);
+            pos(1, 2).order(East)
+        );
     }
 }

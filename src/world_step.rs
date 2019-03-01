@@ -6,14 +6,14 @@ pub trait WorldStep {
     fn add_order(&mut self, order: Order) -> &mut WorldStep;
 
     // Get all effective orders accumulated in this step state.
-    fn get_orders(&mut self) -> Orders;
+    fn get_orders(&self) -> Orders;
 
     // World size
-    fn size(&self) -> Position;
+    fn size(&self) -> &Position;
 
     fn all_my_ants(&self) -> Vec<Position>;
 
-    fn available_directions(&self, pos: Position) -> Vec<Direction>;
+    fn available_directions(&self, pos: &Position) -> Vec<Direction>;
 }
 
 pub struct BasicWorldStep {
@@ -38,19 +38,22 @@ impl WorldStep for BasicWorldStep {
         self
     }
 
-    fn get_orders(&mut self) -> Orders {
+    fn get_orders(&self) -> Orders {
         self.given_orders.clone()
     }
 
-    fn size(&self) -> Position {
-        self.size.clone()
+    fn size(&self) -> &Position {
+        &self.size
     }
 
     fn all_my_ants(&self) -> Vec<Position> {
         self.world.live_ants_for_player(0)
     }
 
-    fn available_directions(&self, _pos: Position) -> Vec<Direction> {
+    fn available_directions(
+        &self,
+        _pos: &Position,
+    ) -> Vec<Direction> {
         vec![North, South, East, West]
     }
 }
