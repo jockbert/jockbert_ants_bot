@@ -79,9 +79,7 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
-    use crate::utilities::world;
 
     /// Assert that dut.get_orders equals expected orders.
     macro_rules! assert_orders {
@@ -112,14 +110,10 @@ mod tests {
 
     #[test]
     fn collision_order_precedence() {
-        let inner = &mut BasicWorldStep::new(
-            world(
-                "a--
-                 -a-",
-            ),
-            pos(2, 3),
+        let inner = &mut BasicWorldStep::new_from_line_map(
+            "a--
+             -a-",
         );
-
         let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
@@ -143,14 +137,10 @@ mod tests {
 
     #[test]
     fn collision_order_precedence_2() {
-        let inner = &mut BasicWorldStep::new(
-            world(
-                "a-
-                 -a",
-            ),
-            pos(2, 2),
+        let inner = &mut BasicWorldStep::new_from_line_map(
+            "a-
+             -a",
         );
-
         let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
@@ -172,14 +162,10 @@ mod tests {
 
     #[test]
     fn move_out_of_way_as_later_order() {
-        let inner = &mut BasicWorldStep::new(
-            world(
-                "a-
-                 a-",
-            ),
-            pos(2, 2),
+        let inner = &mut BasicWorldStep::new_from_line_map(
+            "a-
+             a-",
         );
-
         let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
@@ -201,14 +187,10 @@ mod tests {
 
     #[test]
     fn collision_with_stationary_ant() {
-        let inner = &mut BasicWorldStep::new(
-            world(
-                "aa
-                 aa",
-            ),
-            pos(2, 2),
+        let inner = &mut BasicWorldStep::new_from_line_map(
+            "aa
+             aa",
         );
-
         let mut filter = AntCrashFilter::new(inner);
 
         let top_left_ant = &pos(0, 0);
@@ -226,12 +208,9 @@ mod tests {
 
     #[test]
     fn no_ant_interference() {
-        let inner = &mut BasicWorldStep::new(
-            world(
-                "a--a
-                 -aa-",
-            ),
-            pos(2, 4),
+        let inner = &mut BasicWorldStep::new_from_line_map(
+            "a--a
+             -aa-",
         );
         let mut filter = AntCrashFilter::new(inner);
 

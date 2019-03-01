@@ -1,3 +1,5 @@
+#[cfg(test)]
+use crate::utilities::*;
 use ants_ai_challenge_api::*;
 
 /// Game world simulation step state.
@@ -29,6 +31,13 @@ impl BasicWorldStep {
             world: world,
             size: size,
         }
+    }
+
+    #[cfg(test)]
+    pub fn new_from_line_map(multi_line_map: &'static str) -> BasicWorldStep {
+        let world = world(multi_line_map);
+        let size = size_of_world(multi_line_map);
+        BasicWorldStep::new(world, size)
     }
 }
 
