@@ -2,6 +2,12 @@
 use crate::utilities::*;
 use ants_ai_challenge_api::*;
 
+#[derive(PartialEq, Eq)]
+pub enum Tile {
+    Empty,
+    Water,
+}
+
 /// Game world simulation step state.
 pub trait WorldStep {
     // Add an ant movement order.
@@ -16,6 +22,8 @@ pub trait WorldStep {
     fn all_my_ants(&self) -> Vec<Position>;
 
     fn available_directions(&self, pos: &Position) -> Vec<Direction>;
+
+    fn tile(&self, pos: &Position) -> Tile;
 }
 
 pub struct BasicWorldStep {
@@ -34,7 +42,9 @@ impl BasicWorldStep {
     }
 
     #[cfg(test)]
-    pub fn new_from_line_map(multi_line_map: &'static str) -> BasicWorldStep {
+    pub fn new_from_line_map(
+        multi_line_map: &'static str,
+    ) -> BasicWorldStep {
         let world = world(multi_line_map);
         let size = size_of_world(multi_line_map);
         BasicWorldStep::new(world, size)
@@ -64,5 +74,13 @@ impl WorldStep for BasicWorldStep {
         _pos: &Position,
     ) -> Vec<Direction> {
         vec![North, South, East, West]
+    }
+
+    fn tile(&self, pos: &Position) -> Tile {
+        if self.world.waters.contains(pos) {
+            Tile::Water
+        } else {
+            Tile::Empty
+        }
     }
 }

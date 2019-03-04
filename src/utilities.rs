@@ -113,6 +113,33 @@ impl Iterator for Indexer {
     }
 }
 
+/// Assert that dut.get_orders equals expected orders.
+macro_rules! assert_orders {
+        ($cut:expr) => {
+            assert_eq![$cut.get_orders(),vec![]];
+        };
+
+        ($cut:expr, $( $order:expr ),*) => {
+            let mut expected_orders = Vec::new();
+            $(
+                expected_orders.push($order);
+            )*
+            assert_eq!($cut.get_orders(),expected_orders);
+        };
+    }
+
+/// Assert that dut.available_directions equals
+/// expected directions.
+macro_rules! assert_dirs {
+        ($cut:expr, $position:expr, $( $dir:expr ),*) => {
+            let mut expected_dirs = Vec::new();
+            $(
+                expected_dirs.push($dir);
+            )*
+            assert_eq!($cut.available_directions($position), expected_dirs);
+        };
+    }
+
 #[cfg(test)]
 mod tests {
     use super::*;

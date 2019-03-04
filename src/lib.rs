@@ -1,13 +1,16 @@
 use ants_ai_challenge_api::*;
 use rand::Rng;
 
-mod ant_crash_filter;
-mod world_step;
-
+#[macro_use]
 #[cfg(test)]
 mod utilities;
 
+mod ant_crash_filter;
+mod avoid_water_filter;
+mod world_step;
+
 use crate::ant_crash_filter::AntCrashFilter;
+use crate::avoid_water_filter::AvoidWaterFilter;
 use crate::world_step::*;
 
 #[derive(Default)]
@@ -39,21 +42,22 @@ impl Agent for FooAgent {
             pos(self.params.rows as u16, self.params.cols as u16),
         );
 
-        let mut crash_filter = AntCrashFilter::new(world_step);
+        let crash_filter = &mut AntCrashFilter::new(world_step);
+        let mut water_filter = AvoidWaterFilter::new(crash_filter);
 
         let orders: Vec<Order> = my_ants
             .iter()
             .map(|ant| {
                 ant.order(random_direction(
-                    crash_filter.available_directions(ant),
+                    water_filter.available_directions(ant),
                 ))
             })
             .collect();
 
         for order in orders {
-            crash_filter.add_order(order.clone());
+            water_filter.add_order(order.clone());
         }
 
-        crash_filter.get_orders()
+        water_filter.get_orders()
     }
 }
