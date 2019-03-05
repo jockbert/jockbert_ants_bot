@@ -65,6 +65,59 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
     })
 }
 
+pub fn serialize_world(
+    world: &WorldState,
+    size: &Position,
+) -> String {
+    fn hill_owner(w: &WorldState, p: &Position) -> Option<u8> {
+        for player in 0..w.hills.len() {
+            if w.hills.get(player).expect("").contains(p) {
+                return Some(player as u8);
+            }
+        }
+        None
+    }
+
+    fn to_char(w: &WorldState, p: &Position) -> char {
+        if w.foods.contains(p) {
+            '*'
+        } else if w.waters.contains(p) {
+            '%'
+        } else {
+            for player in 0..w.live_ants.len() {
+                if w.live_ants
+                    .get(player)
+                    .expect("Live ants")
+                    .contains(p)
+                {
+                    return ((if hill_owner(w, p).is_some() {
+                        b'A'
+                    } else {
+                        b'a'
+                    }) + (player as u8))
+                        as char;
+                }
+            }
+            match hill_owner(w, p) {
+                Some(owner) => (b'0' + owner) as char,
+                None => '-',
+            }
+        }
+    }
+
+    let mut result = String::from("");
+
+    for row in 0..size.row {
+        for col in 0..size.col {
+            result.push(to_char(&world, &pos(row, col)));
+        }
+        if row != size.row - 1 {
+            result.push('\n');
+        }
+    }
+    result
+}
+
 /// Calculates the size of a given textual multi line map. The
 /// following example map has size (3,2):
 ///
@@ -163,6 +216,19 @@ mod tests {
                  %----§--"
             )
         )
+    }
+
+    #[test]
+    fn world_serialization_roundtrip() {
+        let data = "-abcdefghij-
+                    -ABCDEFGHIJ-
+                    -0123456789-
+                    -%**--%%*%%-";
+
+        assert_eq![
+            trim_lines(&data),
+            serialize_world(&world(data), &pos(4, 12))
+        ];
     }
 
     #[test]
