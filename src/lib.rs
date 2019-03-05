@@ -2,7 +2,6 @@ use ants_ai_challenge_api::*;
 use rand::Rng;
 
 #[macro_use]
-#[cfg(test)]
 mod utilities;
 
 mod ant_crash_filter;
@@ -33,14 +32,23 @@ impl Agent for FooAgent {
     fn make_turn(
         &mut self,
         world: WorldState,
-        _turn_count: u32,
+        turn_count: u32,
     ) -> Orders {
         let my_ants = world.live_ants_for_player(0);
+        let size =
+            pos(self.params.rows as u16, self.params.cols as u16);
 
-        let world_step = &mut BasicWorldStep::new(
-            world,
-            pos(self.params.rows as u16, self.params.cols as u16),
+        use std::{thread, time};
+        let delay = time::Duration::from_millis(50);
+        thread::sleep(delay);
+        eprintln!(
+            "\nTurn {}\n{}\n",
+            turn_count,
+            utilities::serialize_world(&world, &size)
         );
+        thread::sleep(delay);
+
+        let world_step = &mut BasicWorldStep::new(world, size);
 
         let crash_filter = &mut AntCrashFilter::new(world_step);
         let mut water_filter = AvoidWaterFilter::new(crash_filter);
