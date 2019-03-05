@@ -1,7 +1,9 @@
 use ants_ai_challenge_api::*;
 use rand::Rng;
+use std::collections::HashSet;
 
 #[macro_use]
+#[cfg(test)]
 mod utilities;
 
 mod ant_crash_filter;
@@ -15,6 +17,7 @@ use crate::world_step::*;
 #[derive(Default)]
 pub struct FooAgent {
     params: GameParameters,
+    accumulated_water: HashSet<Position>,
 }
 
 /// Generates a random direction.
@@ -32,21 +35,29 @@ impl Agent for FooAgent {
     fn make_turn(
         &mut self,
         world: WorldState,
-        turn_count: u32,
+        _turn_count: u32,
     ) -> Orders {
+        world.waters.iter().cloned().for_each(|w| {
+            self.accumulated_water.insert(w);
+        });
+
+        let world = WorldState {
+            dead_ants: world.dead_ants.clone(),
+            foods: world.foods.clone(),
+            hills: world.hills.clone(),
+            live_ants: world.live_ants.clone(),
+            waters: self.accumulated_water.iter().cloned().collect(), // world.copy()
+        };
+
         let my_ants = world.live_ants_for_player(0);
         let size =
             pos(self.params.rows as u16, self.params.cols as u16);
 
-        use std::{thread, time};
-        let delay = time::Duration::from_millis(50);
-        thread::sleep(delay);
-        eprintln!(
-            "\nTurn {}\n{}\n",
-            turn_count,
-            utilities::serialize_world(&world, &size)
-        );
-        thread::sleep(delay);
+        // eprintln!(
+        //    "\nTurn {}\n{}\n",
+        //    turn_count,
+        //    utilities::serialize_world(&world, &size)
+        // );
 
         let world_step = &mut BasicWorldStep::new(world, size);
 
