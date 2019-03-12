@@ -84,6 +84,7 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::world_step::basic_world_step::BasicWorldStep;
 
     #[test]
     fn collision_order_precedence() {

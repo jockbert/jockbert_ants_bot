@@ -5,14 +5,12 @@ use std::collections::HashSet;
 #[macro_use]
 #[cfg(test)]
 mod utilities;
-
-mod ant_crash_filter;
-mod avoid_water_filter;
 mod world_step;
 
-use crate::ant_crash_filter::AntCrashFilter;
-use crate::avoid_water_filter::AvoidWaterFilter;
-use crate::world_step::*;
+use crate::world_step::ant_crash_filter::AntCrashFilter;
+use crate::world_step::avoid_water_filter::AvoidWaterFilter;
+use crate::world_step::basic_world_step::BasicWorldStep;
+use crate::world_step::WorldStep;
 
 #[derive(Default)]
 pub struct FooAgent {

@@ -48,6 +48,7 @@ impl<'a> WorldStep for AvoidWaterFilter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::world_step::basic_world_step::BasicWorldStep;
 
     #[test]
     fn no_restriction() {
