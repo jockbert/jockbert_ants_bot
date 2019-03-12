@@ -1,12 +1,14 @@
+use crate::strategy::Strategy;
 use ants_ai_challenge_api::*;
-use rand::Rng;
 use std::collections::HashSet;
 
 #[macro_use]
 #[cfg(test)]
 mod utilities;
+mod strategy;
 mod world_step;
 
+use crate::strategy::random_walk::RandomWalk;
 use crate::world_step::ant_crash_filter::AntCrashFilter;
 use crate::world_step::avoid_water_filter::AvoidWaterFilter;
 use crate::world_step::basic_world_step::BasicWorldStep;
@@ -16,13 +18,6 @@ use crate::world_step::WorldStep;
 pub struct FooAgent {
     params: GameParameters,
     accumulated_water: HashSet<Position>,
-}
-
-/// Generates a random direction.
-fn random_direction(dirs: Vec<Direction>) -> Direction {
-    let mut rng = rand::thread_rng();
-    let index = rng.gen_range(0 as usize, dirs.len());
-    *dirs.get(index).expect("no out of bounds")
 }
 
 impl Agent for FooAgent {
@@ -62,14 +57,10 @@ impl Agent for FooAgent {
         let crash_filter = &mut AntCrashFilter::new(world_step);
         let mut water_filter = AvoidWaterFilter::new(crash_filter);
 
-        let orders: Vec<Order> = my_ants
-            .iter()
-            .map(|ant| {
-                ant.order(random_direction(
-                    water_filter.available_directions(ant),
-                ))
-            })
-            .collect();
+        let strategy = &RandomWalk {};
+
+        let (_ants_left, orders) =
+            strategy.apply(&water_filter, my_ants);
 
         for order in orders {
             water_filter.add_order(order.clone());
