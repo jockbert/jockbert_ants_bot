@@ -3,6 +3,8 @@ use ants_ai_challenge_api::*;
 
 pub mod random_walk;
 
+pub use random_walk::*;
+
 pub trait Strategy {
     fn apply(
         &self,

@@ -1,4 +1,3 @@
-use crate::strategy::Strategy;
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 
@@ -8,11 +7,8 @@ mod utilities;
 mod strategy;
 mod world_step;
 
-use crate::strategy::random_walk::RandomWalk;
-use crate::world_step::ant_crash_filter::AntCrashFilter;
-use crate::world_step::avoid_water_filter::AvoidWaterFilter;
-use crate::world_step::basic_world_step::BasicWorldStep;
-use crate::world_step::WorldStep;
+use crate::strategy::*;
+use crate::world_step::*;
 
 #[derive(Default)]
 pub struct FooAgent {

@@ -2,6 +2,10 @@ pub mod ant_crash_filter;
 pub mod avoid_water_filter;
 pub mod basic_world_step;
 
+pub use ant_crash_filter::*;
+pub use avoid_water_filter::*;
+pub use basic_world_step::*;
+
 #[cfg(test)]
 use crate::utilities::*;
 use ants_ai_challenge_api::*;
