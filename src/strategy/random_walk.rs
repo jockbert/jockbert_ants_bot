@@ -10,7 +10,7 @@ use rand::Rng;
 pub struct RandomWalk {}
 
 /// Generates a random direction.
-fn random_direction(dirs: Vec<Direction>) -> Direction {
+fn random_direction(dirs: &[Direction]) -> Direction {
     let mut rng = rand::thread_rng();
     let index = rng.gen_range(0 as usize, dirs.len());
     *dirs.get(index).expect("no out of bounds")
@@ -26,7 +26,7 @@ impl Strategy for RandomWalk {
             .iter()
             .map(|ant| {
                 ant.order(random_direction(
-                    world_step.available_directions(ant),
+                    world_step.available_directions(ant).as_ref(),
                 ))
             })
             .collect();
