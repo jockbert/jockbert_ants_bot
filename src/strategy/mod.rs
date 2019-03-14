@@ -2,6 +2,8 @@ use crate::world_step::WorldStep;
 use ants_ai_challenge_api::*;
 
 pub mod random_walk;
+#[cfg(test)]
+pub mod search;
 
 pub use random_walk::*;
 
