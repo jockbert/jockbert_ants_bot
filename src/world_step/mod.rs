@@ -14,6 +14,7 @@ use ants_ai_challenge_api::*;
 pub enum Tile {
     Empty,
     Water,
+    Food,
 }
 
 /// Game world simulation step state.
@@ -32,4 +33,6 @@ pub trait WorldStep {
     fn available_directions(&self, pos: &Position) -> Vec<Direction>;
 
     fn tile(&self, pos: &Position) -> Tile;
+
+    fn get_positions(&self, tile: Tile) -> Vec<Position>;
 }

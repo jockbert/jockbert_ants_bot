@@ -52,10 +52,20 @@ impl WorldStep for BasicWorldStep {
     }
 
     fn tile(&self, pos: &Position) -> Tile {
-        if self.world.waters.contains(pos) {
+        if self.world.foods.contains(pos) {
+            Tile::Food
+        } else if self.world.waters.contains(pos) {
             Tile::Water
         } else {
             Tile::Empty
+        }
+    }
+
+    fn get_positions(&self, tile: Tile) -> Vec<Position> {
+        match tile {
+            Tile::Food => self.world.foods.clone(),
+            Tile::Water => self.world.waters.clone(),
+            _ => vec![],
         }
     }
 }

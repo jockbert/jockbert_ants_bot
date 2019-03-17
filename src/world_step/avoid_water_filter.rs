@@ -44,6 +44,10 @@ impl<'a> WorldStep for AvoidWaterFilter<'a> {
     fn tile(&self, pos: &Position) -> Tile {
         self.delegate.tile(pos)
     }
+
+    fn get_positions(&self, tile: Tile) -> Vec<Position> {
+        self.delegate.get_positions(tile)
+    }
 }
 #[cfg(test)]
 mod tests {
