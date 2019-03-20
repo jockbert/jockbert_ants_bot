@@ -1,5 +1,6 @@
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 #[macro_use]
 #[cfg(test)]
@@ -35,7 +36,9 @@ impl Agent for FooAgent {
             foods: world.foods.clone(),
             hills: world.hills.clone(),
             live_ants: world.live_ants.clone(),
-            waters: self.accumulated_water.iter().cloned().collect(), // world.copy()
+            waters: Vec::from_iter(
+                self.accumulated_water.iter().cloned(),
+            ),
         };
 
         let my_ants = world.live_ants_for_player(0);
