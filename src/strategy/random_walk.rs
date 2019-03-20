@@ -20,7 +20,7 @@ impl Strategy for RandomWalk {
     fn apply(
         &self,
         world_step: &WorldStep,
-        ants: Vec<Position>,
+        ants: &Vec<Position>,
     ) -> (Vec<Position>, Orders) {
         let orders: Vec<Order> = ants
             .iter()

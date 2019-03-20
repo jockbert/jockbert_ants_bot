@@ -10,10 +10,10 @@ impl Strategy for GatherFood {
     fn apply(
         &self,
         world_step: &WorldStep,
-        ants: Vec<Position>,
+        ants_available: &Vec<Position>,
     ) -> (Vec<Position>, Orders) {
         let mut result_orders: Vec<Order> = Vec::new();
-        let mut rest_ants: Vec<Position> = ants;
+        let mut rest_ants: Vec<Position> = ants_available.clone();
 
         for food in world_step.get_positions(Tile::Food) {
             // only interrested in the nearest ant

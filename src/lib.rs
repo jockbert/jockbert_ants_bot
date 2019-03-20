@@ -53,10 +53,10 @@ impl Agent for FooAgent {
         let crash_filter = &mut AntCrashFilter::new(world_step);
         let mut water_filter = AvoidWaterFilter::new(crash_filter);
 
-        let strategy = &RandomWalk {};
+        let strategy = &CompositeStrategy::new();
 
         let (_ants_left, orders) =
-            strategy.apply(&water_filter, my_ants);
+            strategy.apply(&water_filter, &my_ants);
 
         for order in orders {
             water_filter.add_order(order.clone());
