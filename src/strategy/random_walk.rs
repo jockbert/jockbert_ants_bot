@@ -4,7 +4,7 @@ use ants_ai_challenge_api::Direction;
 use ants_ai_challenge_api::Order;
 use ants_ai_challenge_api::Orders;
 use ants_ai_challenge_api::Position;
-
+use std::collections::HashSet;
 use rand::Rng;
 
 pub struct RandomWalk {}
@@ -20,8 +20,8 @@ impl Strategy for RandomWalk {
     fn apply(
         &self,
         world_step: &WorldStep,
-        ants: &Vec<Position>,
-    ) -> (Vec<Position>, Orders) {
+        ants: &mut HashSet<Position>,
+    ) ->  Orders {
         let orders: Vec<Order> = ants
             .iter()
             .map(|ant| {
@@ -31,6 +31,6 @@ impl Strategy for RandomWalk {
             })
             .collect();
 
-        (vec![], orders)
+         orders
     }
 }

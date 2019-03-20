@@ -1,6 +1,5 @@
 use crate::strategy::*;
 use std::collections::HashSet;
-use std::iter::FromIterator;
 
 /// Nearest orders to 'to' from 'from', is actually a reversed breadth first
 /// search starting with 'to' and searching for the first maching positions
@@ -8,7 +7,7 @@ use std::iter::FromIterator;
 pub fn nearest_orders(
     world: &WorldStep,
     to: Position,
-    from: Vec<Position>,
+    from: &HashSet<Position>,
     max_result_len: usize,
 ) -> Vec<Order> {
     // Keep track current positions to search from
@@ -21,10 +20,6 @@ pub fn nearest_orders(
     // Keep track of positions to use in the next iteration.
     let mut next_fringe: HashSet<Position> = HashSet::new();
     let mut results = vec![];
-
-    // Copy from vector to hash set
-    let f: HashSet<Position> =
-        HashSet::from_iter(from.iter().cloned());
 
     // Add end position to fringe, since we start the search from there.
     fringe.insert(to);
@@ -48,12 +43,12 @@ pub fn nearest_orders(
             for order in next_fringe_orders {
                 let target = order.target_pos(world.size());
 
-                if f.contains(&target) {
+                if from.contains(&target) {
                     // Add reversed order, since we are searching backwards.
                     results.push(order.reverse(world.size()));
 
                     if results.len() >= max_result_len
-                        || results.len() >= f.len()
+                        || results.len() >= from.len()
                     {
                         // No nead to search more if we do not
                         // need any more results
@@ -73,7 +68,7 @@ pub fn nearest_orders(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utilities::world;
+    use crate::utilities::*;
     use crate::world_step::{AvoidWaterFilter, BasicWorldStep};
 
     #[test]
@@ -86,7 +81,7 @@ mod tests {
         let world = &AvoidWaterFilter::new(inner);
 
         let actual =
-            nearest_orders(world, pos(0, 0), vec![pos(0, 2)], 10);
+            nearest_orders(world, pos(0, 0), &set![pos(0, 2)], 10);
 
         assert_eq!(actual, vec![pos(0, 2).order(West)]);
     }
@@ -100,7 +95,7 @@ mod tests {
         let world = &AvoidWaterFilter::new(inner);
 
         let actual =
-            nearest_orders(world, pos(0, 0), vec![pos(1, 1)], 10);
+            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
         assert_eq!(actual, vec![pos(1, 1).order(West)]);
     }
 
@@ -115,7 +110,7 @@ mod tests {
         let world = &AvoidWaterFilter::new(inner);
 
         let actual =
-            nearest_orders(world, pos(0, 0), vec![pos(1, 1)], 10);
+            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
         assert_eq!(actual, vec![pos(1, 1).order(North)]);
     }
 
@@ -138,7 +133,7 @@ mod tests {
         let actual = nearest_orders(
             world,
             pos(4, 3),
-            vec![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
+            &set![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
             10,
         );
         assert_eq!(
@@ -165,7 +160,7 @@ mod tests {
         let world = &AvoidWaterFilter::new(inner);
 
         let actual =
-            nearest_orders(world, pos(4, 4), vec![pos(1, 0)], 10);
+            nearest_orders(world, pos(4, 4), &set![pos(1, 0)], 10);
         assert_eq!(actual, vec![pos(1, 0).order(West)]);
     }
 
@@ -189,7 +184,7 @@ mod tests {
         let actual = nearest_orders(
             world,
             pos(0, 4),
-            vec![pos(1, 1), pos(1, 2), pos(2, 4)],
+            &set![pos(1, 1), pos(1, 2), pos(2, 4)],
             10,
         );
         assert_eq!(actual, vec![pos(2, 4).order(South)]);
@@ -206,7 +201,7 @@ mod tests {
         let world = &AvoidWaterFilter::new(inner);
 
         let actual =
-            nearest_orders(world, pos(0, 4), vec![pos(1, 1)], 10);
+            nearest_orders(world, pos(0, 4), &set![pos(1, 1)], 10);
         assert_eq!(actual, vec![]);
     }
 
@@ -227,7 +222,7 @@ mod tests {
         let actual = nearest_orders(
             world,
             pos(1, 1),
-            vec![pos(0, 4), pos(1, 5), pos(2, 4)],
+            &set![pos(0, 4), pos(1, 5), pos(2, 4)],
             2,
         );
         assert_eq!(actual.len(), 2);
@@ -248,7 +243,7 @@ mod tests {
         let actual = nearest_orders(
             &world_step,
             pos(0, 0),
-            vec![pos(0, 2)],
+            &set![pos(0, 2)],
             2,
         );
 
@@ -262,18 +257,18 @@ mod tests {
         let size = pos(32_000, 32_000);
         let world_step = BasicWorldStep::new(world, size);
 
-        let mut ants: Vec<Position> = vec![];
+        let mut ants: HashSet<Position> = set![];
 
         for col in 100..200 {
             for row in 0..20 {
-                ants.push(pos(row, col));
+                ants.insert(pos(row, col));
             }
         }
 
         // The nearest ant is last in the list
-        ants.push(pos(0, 99));
+        ants.insert(pos(0, 99));
 
-        let actual = nearest_orders(&world_step, pos(0, 0), ants, 1);
+        let actual = nearest_orders(&world_step, pos(0, 0), &ants, 1);
 
         assert_eq![actual, vec![pos(0, 99).order(West)]];
     }

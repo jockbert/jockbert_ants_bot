@@ -1,5 +1,6 @@
 use crate::world_step::WorldStep;
 use ants_ai_challenge_api::*;
+use std::collections::HashSet;
 
 pub mod composite_strategy;
 pub mod gather_food;
@@ -14,6 +15,6 @@ pub trait Strategy {
     fn apply(
         &self,
         world_step: &WorldStep,
-        ants_available: &Vec<Position>,
-    ) -> (Vec<Position>, Orders);
+        ants_available: &mut HashSet<Position>,
+    ) -> Orders;
 }

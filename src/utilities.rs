@@ -166,6 +166,17 @@ impl Iterator for Indexer {
     }
 }
 
+macro_rules! set(
+    { $($value:expr),* } => {
+        {
+            let mut m = ::std::collections::HashSet::new();
+            $(
+                m.insert($value);
+            )*
+            m
+        }};
+    );
+
 /// Assert that dut.get_orders equals expected orders.
 macro_rules! assert_orders {
         ($cut:expr) => {

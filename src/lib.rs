@@ -41,7 +41,10 @@ impl Agent for FooAgent {
             ),
         };
 
-        let my_ants = world.live_ants_for_player(0);
+        let mut my_ants: HashSet<Position> = HashSet::from_iter(
+            world.live_ants_for_player(0).iter().cloned(),
+        );
+
         let size =
             pos(self.params.rows as u16, self.params.cols as u16);
 
@@ -58,8 +61,7 @@ impl Agent for FooAgent {
 
         let strategy = &CompositeStrategy::new();
 
-        let (_ants_left, orders) =
-            strategy.apply(&water_filter, &my_ants);
+        let orders = strategy.apply(&water_filter, &mut my_ants);
 
         for order in orders {
             water_filter.add_order(order.clone());
