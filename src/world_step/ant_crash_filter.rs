@@ -1,6 +1,8 @@
 use crate::world_step::*;
 use ants_ai_challenge_api::*;
+use std::collections::HashMap;
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 pub struct AntCrashFilter {
     delegate: Box<WorldStep>,
@@ -27,33 +29,51 @@ impl WorldStep for AntCrashFilter {
     }
 
     fn get_orders(&self) -> Orders {
-        let mut taken_targets: HashSet<Position> = HashSet::new();
-
         let given_orders = self.delegate.get_orders();
 
-        let ordered_ants: Vec<_> =
-            given_orders.iter().map(|o| o.pos.clone()).collect();
+        let unmoved_ants: HashSet<Position> = HashSet::from_iter(
+            self.delegate.all_my_ants().iter().cloned(),
+        );
 
-        let stationary_ants: Vec<_> = self
-            .all_my_ants()
-            .iter()
-            .filter(|ant| !ordered_ants.contains(ant))
-            .cloned()
-            .collect();
+        let mut moved_ants: HashSet<Position> = HashSet::new();
 
-        for ant in stationary_ants {
-            taken_targets.insert(ant);
+        let mut awaiting_orders: HashMap<Position, Order> =
+            HashMap::new();
+
+        let mut executed_orders: Vec<Order> = vec![];
+
+        for order in given_orders {
+            if unmoved_ants.contains(&order.pos) {
+                let target = order.target_pos(self.size());
+                if moved_ants.contains(&target) {
+                    // No chance for this order  to be executed - dropped
+                } else if unmoved_ants.contains(&target) {
+                    awaiting_orders
+                        .entry(target.clone())
+                        .or_insert(order);
+                } else {
+                    executed_orders.push(order.clone());
+                    moved_ants.insert(target);
+
+                    // Keep resolving old awaiting orders, who's target
+                    // is the same as this (just executed) order's source.
+                    let mut source = order.clone().pos;
+                    while awaiting_orders.contains_key(&source) {
+                        let awaiting_order =
+                            awaiting_orders[&source].clone();
+
+                        executed_orders.push(awaiting_order.clone());
+                        moved_ants.insert(source);
+
+                        source = awaiting_order.pos.clone();
+                    }
+                }
+            } else {
+                // Error handling please!
+            }
         }
-        given_orders
-            .iter()
-            .filter(|order| {
-                let target = order.target_pos(&self.size());
-                let keep_order = !taken_targets.contains(&target);
-                taken_targets.insert(target);
-                keep_order
-            })
-            .cloned()
-            .collect()
+
+        executed_orders
     }
 
     fn size(&self) -> &Position {
@@ -150,24 +170,25 @@ mod tests {
     #[test]
     fn move_out_of_way_as_later_order() {
         let mut filter = AntCrashFilter::new_from_line_map(
-            "a-
-             a-",
+            "aaaa-
+            ",
         );
 
-        let top_ant = &pos(0, 0);
-        let bottom_ant = &pos(1, 0);
-
         filter
-            .add_order(top_ant.order(South))
-            .add_order(bottom_ant.order(East));
+            .add_order(pos(0, 0).order(East))
+            .add_order(pos(0, 1).order(East))
+            .add_order(pos(0, 2).order(East))
+            .add_order(pos(0, 3).order(East));
 
         // No orders are filtered out since the first
         // order is possible after the second order is
         // executed.
         assert_orders!(
             filter,
-            top_ant.order(South),
-            bottom_ant.order(East)
+            pos(0, 3).order(East),
+            pos(0, 2).order(East),
+            pos(0, 1).order(East),
+            pos(0, 0).order(East)
         );
     }
 
@@ -213,5 +234,34 @@ mod tests {
             pos(1, 1).order(West),
             pos(1, 2).order(East)
         );
+    }
+
+    #[test]
+    fn tripple_ant_pileup_with_moving_ant() {
+        let mut filter = AntCrashFilter::new_from_line_map(
+            "aa-a
+            ",
+        );
+
+        filter
+            .add_order(pos(0, 3).order(West))
+            .add_order(pos(0, 1).order(East))
+            .add_order(pos(0, 0).order(East));
+
+        assert_orders!(filter, pos(0, 3).order(West));
+    }
+
+    #[test]
+    fn tripple_ant_pileup_with_stationary_ant() {
+        let mut filter = AntCrashFilter::new_from_line_map(
+            "aaa
+            ",
+        );
+
+        filter
+            .add_order(pos(0, 1).order(East))
+            .add_order(pos(0, 0).order(East));
+
+        assert_orders!(filter);
     }
 }
