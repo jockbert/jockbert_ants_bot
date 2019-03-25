@@ -167,12 +167,13 @@ impl Iterator for Indexer {
 }
 
 macro_rules! set(
-    { $($value:expr),* } => {
+    () => { ::std::collections::HashSet::new(); };
+    ($($value:expr),+ ) => {
         {
             let mut m = ::std::collections::HashSet::new();
             $(
                 m.insert($value);
-            )*
+            )+
             m
         }};
     );
