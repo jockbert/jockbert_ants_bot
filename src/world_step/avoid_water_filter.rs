@@ -1,17 +1,23 @@
 use crate::world_step::*;
 use ants_ai_challenge_api::*;
 
-pub struct AvoidWaterFilter<'a> {
-    delegate: &'a mut WorldStep,
+pub struct AvoidWaterFilter {
+    delegate: Box<WorldStep>,
 }
 
-impl<'a> AvoidWaterFilter<'a> {
-    pub fn new(delegate: &'a mut WorldStep) -> AvoidWaterFilter {
+impl AvoidWaterFilter {
+    pub fn new(delegate: Box<WorldStep>) -> AvoidWaterFilter {
         AvoidWaterFilter { delegate: delegate }
+    }
+
+    #[cfg(test)]
+    pub fn new_from_line_map(map: &'static str) -> AvoidWaterFilter {
+        let inner = BasicWorldStep::new_from_line_map(map);
+        AvoidWaterFilter::new(Box::new(inner))
     }
 }
 
-impl<'a> WorldStep for AvoidWaterFilter<'a> {
+impl WorldStep for AvoidWaterFilter {
     fn add_order(&mut self, order: Order) -> &mut WorldStep {
         self.delegate.add_order(order);
         self
@@ -52,16 +58,14 @@ impl<'a> WorldStep for AvoidWaterFilter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world_step::basic_world_step::BasicWorldStep;
 
     #[test]
     fn no_restriction() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let filter = AvoidWaterFilter::new_from_line_map(
             "%-%
              *a-
              %-%",
         );
-        let filter = AvoidWaterFilter::new(inner);
 
         // All directions are available
         assert_dirs!(filter, &pos(1, 1), North, South, East, West);
@@ -69,12 +73,11 @@ mod tests {
 
     #[test]
     fn only_east() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let filter = AvoidWaterFilter::new_from_line_map(
             "%%%
              %a-
              %%%",
         );
-        let filter = AvoidWaterFilter::new(inner);
 
         // Only east is available
         assert_dirs!(filter, &pos(1, 1), East);

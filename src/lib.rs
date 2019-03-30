@@ -54,10 +54,10 @@ impl Agent for FooAgent {
         //    utilities::serialize_world(&world, &size)
         // );
 
-        let world_step = &mut BasicWorldStep::new(world, size);
-
-        let crash_filter = &mut AntCrashFilter::new(world_step);
-        let mut water_filter = AvoidWaterFilter::new(crash_filter);
+        let world_step = BasicWorldStep::new(world, size);
+        let crash_filter = AntCrashFilter::new(Box::new(world_step));
+        let mut water_filter =
+            AvoidWaterFilter::new(Box::new(crash_filter));
 
         let strategy = &CompositeStrategy::new();
 

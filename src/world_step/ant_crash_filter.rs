@@ -2,17 +2,25 @@ use crate::world_step::*;
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 
-pub struct AntCrashFilter<'a> {
-    delegate: &'a mut WorldStep,
+pub struct AntCrashFilter {
+    delegate: Box<WorldStep>,
 }
 
-impl<'a> AntCrashFilter<'a> {
-    pub fn new(delegate: &'a mut WorldStep) -> AntCrashFilter {
+impl AntCrashFilter {
+    pub fn new(delegate: Box<WorldStep>) -> AntCrashFilter {
         AntCrashFilter { delegate: delegate }
+    }
+
+    #[cfg(test)]
+    pub fn new_from_line_map(map: &'static str) -> AntCrashFilter {
+        let inner = BasicWorldStep::new_from_line_map(map);
+        AntCrashFilter {
+            delegate: Box::new(inner),
+        }
     }
 }
 
-impl<'a> WorldStep for AntCrashFilter<'a> {
+impl WorldStep for AntCrashFilter {
     fn add_order(&mut self, order: Order) -> &mut WorldStep {
         self.delegate.add_order(order);
         self
@@ -88,15 +96,13 @@ impl<'a> WorldStep for AntCrashFilter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world_step::basic_world_step::BasicWorldStep;
 
     #[test]
     fn collision_order_precedence() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let mut filter = AntCrashFilter::new_from_line_map(
             "a--
              -a-",
         );
-        let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
         let bottom_ant = &pos(1, 1);
@@ -119,11 +125,10 @@ mod tests {
 
     #[test]
     fn collision_order_precedence_2() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let mut filter = AntCrashFilter::new_from_line_map(
             "a-
              -a",
         );
-        let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
         let bottom_ant = &pos(1, 1);
@@ -144,11 +149,10 @@ mod tests {
 
     #[test]
     fn move_out_of_way_as_later_order() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let mut filter = AntCrashFilter::new_from_line_map(
             "a-
              a-",
         );
-        let mut filter = AntCrashFilter::new(inner);
 
         let top_ant = &pos(0, 0);
         let bottom_ant = &pos(1, 0);
@@ -169,11 +173,10 @@ mod tests {
 
     #[test]
     fn collision_with_stationary_ant() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let mut filter = AntCrashFilter::new_from_line_map(
             "aa
              aa",
         );
-        let mut filter = AntCrashFilter::new(inner);
 
         let top_left_ant = &pos(0, 0);
 
@@ -190,11 +193,10 @@ mod tests {
 
     #[test]
     fn no_ant_interference() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let mut filter = AntCrashFilter::new_from_line_map(
             "a--a
              -aa-",
         );
-        let mut filter = AntCrashFilter::new(inner);
 
         // All orders are valid and there should be no interference.
         filter

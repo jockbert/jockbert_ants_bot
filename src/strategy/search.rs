@@ -73,12 +73,10 @@ mod tests {
 
     #[test]
     fn basics() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "b-a--
              -----",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(0, 2)], 10);
@@ -88,11 +86,10 @@ mod tests {
 
     #[test]
     fn obstacle_above() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "b%%
              -a%",
         );
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
@@ -101,13 +98,11 @@ mod tests {
 
     #[test]
     fn obstacle_on_side() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "b-
              %a
              %%",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
@@ -116,7 +111,7 @@ mod tests {
 
     #[test]
     fn nearest_alternative() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "---a---
              -------
              -------
@@ -127,8 +122,6 @@ mod tests {
              -------
              -------",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual = nearest_orders(
             world,
@@ -149,15 +142,13 @@ mod tests {
 
     #[test]
     fn passing_boundaries() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "%-----
              a%----
              %-----
              ----%-
              ---%b%",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual =
             nearest_orders(world, pos(4, 4), &set![pos(1, 0)], 10);
@@ -166,7 +157,7 @@ mod tests {
 
     #[test]
     fn locked_in() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "-%%-b--
              %aa%%%%
              -%%-a--
@@ -179,8 +170,6 @@ mod tests {
              -------",
         );
 
-        let world = &AvoidWaterFilter::new(inner);
-
         let actual = nearest_orders(
             world,
             pos(0, 4),
@@ -192,13 +181,11 @@ mod tests {
 
     #[test]
     fn no_solution() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "-%--b--
              %a%----
              -%-----",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual =
             nearest_orders(world, pos(0, 4), &set![pos(1, 1)], 10);
@@ -210,14 +197,12 @@ mod tests {
     /// masked out is implementation specific.
     #[test]
     fn restricted_by_max_results() {
-        let inner = &mut BasicWorldStep::new_from_line_map(
+        let world = &AvoidWaterFilter::new_from_line_map(
             "
             %---a-
             %b---a
             %---a-",
         );
-
-        let world = &AvoidWaterFilter::new(inner);
 
         let actual = nearest_orders(
             world,

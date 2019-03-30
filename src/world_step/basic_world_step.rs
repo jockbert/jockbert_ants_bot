@@ -17,11 +17,9 @@ impl BasicWorldStep {
     }
 
     #[cfg(test)]
-    pub fn new_from_line_map(
-        multi_line_map: &'static str,
-    ) -> BasicWorldStep {
-        let world = world(multi_line_map);
-        let size = size_of_world(multi_line_map);
+    pub fn new_from_line_map(map: &'static str) -> BasicWorldStep {
+        let world = world(map);
+        let size = size_of_world(map);
         BasicWorldStep::new(world, size)
     }
 }
