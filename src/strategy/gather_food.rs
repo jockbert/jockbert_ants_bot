@@ -57,7 +57,7 @@ mod tests {
 
         assert_eq![
             actual_orders,
-            vec![left_ant.order(West), right_ant.order(East)]
+            vec![left_ant.west(), right_ant.east()]
         ];
     }
 
@@ -77,7 +77,7 @@ mod tests {
         let actual_orders = strategy.apply(world_step, &mut ants);
 
         assert_eq![ants, set![left_ant]];
-        assert_eq![actual_orders, vec![right_ant.order(West)]];
+        assert_eq![actual_orders, vec![right_ant.west()]];
     }
 
     #[test]
@@ -98,7 +98,7 @@ mod tests {
         let actual_orders = strategy.apply(world_step, &mut ants);
 
         assert_eq![ants, set![]];
-        assert_eq![actual_orders, vec![ant.order(North)]];
+        assert_eq![actual_orders, vec![ant.north()]];
     }
 
 }

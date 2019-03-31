@@ -32,5 +32,5 @@ fn test_forced_to_walk_east() {
 
     let orders = agent.make_turn(world, 1);
 
-    assert_eq![orders, vec![pos(1, 1).order(Direction::East)]];
+    assert_eq![orders, vec![pos(1, 1).east()]];
 }

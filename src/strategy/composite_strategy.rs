@@ -58,7 +58,7 @@ mod tests {
 
         assert_eq![
             actual_orders,
-            vec![left_ant.order(West), right_ant.order(East)]
+            vec![left_ant.west(), right_ant.east()]
         ];
     }
 }

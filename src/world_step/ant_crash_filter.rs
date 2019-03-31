@@ -131,16 +131,16 @@ mod tests {
         assert_dirs!(filter, top_ant, North, South, East, West);
 
         // Add first order
-        filter.add_order(top_ant.order(South));
+        filter.add_order(top_ant.south());
 
         // West is unavailable for second ant
         assert_dirs![filter, bottom_ant, North, South, East];
 
         // Ignore unavailable direction
-        filter.add_order(bottom_ant.order(West));
+        filter.add_order(bottom_ant.west());
 
         // Only first order is available
-        assert_orders!(filter, top_ant.order(South));
+        assert_orders!(filter, top_ant.south());
     }
 
     #[test]
@@ -154,17 +154,17 @@ mod tests {
         let bottom_ant = &pos(1, 1);
 
         // Add first order, targets position (1,0)
-        filter.add_order(bottom_ant.order(West));
+        filter.add_order(bottom_ant.west());
 
         // Neither North nor South works for top ant, since the map
         // coordinates wrap around, both leads to position (1,0).
         assert_dirs![filter, top_ant, East, West];
 
         // Try add invalid order
-        filter.add_order(top_ant.order(South));
+        filter.add_order(top_ant.south());
 
         // Only first order is available
-        assert_orders![filter, bottom_ant.order(West)];
+        assert_orders![filter, bottom_ant.west()];
     }
 
     #[test]
@@ -175,20 +175,20 @@ mod tests {
         );
 
         filter
-            .add_order(pos(0, 0).order(East))
-            .add_order(pos(0, 1).order(East))
-            .add_order(pos(0, 2).order(East))
-            .add_order(pos(0, 3).order(East));
+            .add_order(pos(0, 0).east())
+            .add_order(pos(0, 1).east())
+            .add_order(pos(0, 2).east())
+            .add_order(pos(0, 3).east());
 
         // No orders are filtered out since the first
         // order is possible after the second order is
         // executed.
         assert_orders!(
             filter,
-            pos(0, 3).order(East),
-            pos(0, 2).order(East),
-            pos(0, 1).order(East),
-            pos(0, 0).order(East)
+            pos(0, 3).east(),
+            pos(0, 2).east(),
+            pos(0, 1).east(),
+            pos(0, 0).east()
         );
     }
 
@@ -205,7 +205,7 @@ mod tests {
         // the other ants are not known at the moment.
         assert_dirs!(filter, top_left_ant, North, South, East, West);
 
-        filter.add_order(top_left_ant.order(South));
+        filter.add_order(top_left_ant.south());
 
         // The added order is filtered out since no
         // of the other ants has moved.
@@ -221,18 +221,18 @@ mod tests {
 
         // All orders are valid and there should be no interference.
         filter
-            .add_order(pos(0, 0).order(East))
-            .add_order(pos(0, 3).order(West))
-            .add_order(pos(1, 1).order(West))
-            .add_order(pos(1, 2).order(East));
+            .add_order(pos(0, 0).east())
+            .add_order(pos(0, 3).west())
+            .add_order(pos(1, 1).west())
+            .add_order(pos(1, 2).east());
 
         // No orders are filtered out
         assert_orders!(
             filter,
-            pos(0, 0).order(East),
-            pos(0, 3).order(West),
-            pos(1, 1).order(West),
-            pos(1, 2).order(East)
+            pos(0, 0).east(),
+            pos(0, 3).west(),
+            pos(1, 1).west(),
+            pos(1, 2).east()
         );
     }
 
@@ -244,11 +244,11 @@ mod tests {
         );
 
         filter
-            .add_order(pos(0, 3).order(West))
-            .add_order(pos(0, 1).order(East))
-            .add_order(pos(0, 0).order(East));
+            .add_order(pos(0, 3).west())
+            .add_order(pos(0, 1).east())
+            .add_order(pos(0, 0).east());
 
-        assert_orders!(filter, pos(0, 3).order(West));
+        assert_orders!(filter, pos(0, 3).west());
     }
 
     #[test]
@@ -259,8 +259,8 @@ mod tests {
         );
 
         filter
-            .add_order(pos(0, 1).order(East))
-            .add_order(pos(0, 0).order(East));
+            .add_order(pos(0, 1).east())
+            .add_order(pos(0, 0).east());
 
         assert_orders!(filter);
     }

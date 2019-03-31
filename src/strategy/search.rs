@@ -81,7 +81,7 @@ mod tests {
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(0, 2)], 10);
 
-        assert_eq!(actual, vec![pos(0, 2).order(West)]);
+        assert_eq!(actual, vec![pos(0, 2).west()]);
     }
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
 
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
-        assert_eq!(actual, vec![pos(1, 1).order(West)]);
+        assert_eq!(actual, vec![pos(1, 1).west()]);
     }
 
     #[test]
@@ -106,7 +106,7 @@ mod tests {
 
         let actual =
             nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
-        assert_eq!(actual, vec![pos(1, 1).order(North)]);
+        assert_eq!(actual, vec![pos(1, 1).north()]);
     }
 
     #[test]
@@ -132,10 +132,10 @@ mod tests {
         assert_eq!(
             actual,
             vec![
-                pos(5, 3).order(North),
-                pos(4, 5).order(West),
-                pos(4, 0).order(East),
-                pos(0, 3).order(South)
+                pos(5, 3).north(),
+                pos(4, 5).west(),
+                pos(4, 0).east(),
+                pos(0, 3).south()
             ]
         );
     }
@@ -152,7 +152,7 @@ mod tests {
 
         let actual =
             nearest_orders(world, pos(4, 4), &set![pos(1, 0)], 10);
-        assert_eq!(actual, vec![pos(1, 0).order(West)]);
+        assert_eq!(actual, vec![pos(1, 0).west()]);
     }
 
     #[test]
@@ -176,7 +176,7 @@ mod tests {
             &set![pos(1, 1), pos(1, 2), pos(2, 4)],
             10,
         );
-        assert_eq!(actual, vec![pos(2, 4).order(South)]);
+        assert_eq!(actual, vec![pos(2, 4).south()]);
     }
 
     #[test]
@@ -232,7 +232,7 @@ mod tests {
             2,
         );
 
-        assert_eq![actual, vec![pos(0, 2).order(West)]];
+        assert_eq![actual, vec![pos(0, 2).west()]];
     }
 
     //
@@ -255,6 +255,6 @@ mod tests {
 
         let actual = nearest_orders(&world_step, pos(0, 0), &ants, 1);
 
-        assert_eq![actual, vec![pos(0, 99).order(West)]];
+        assert_eq![actual, vec![pos(0, 99).west()]];
     }
 }
