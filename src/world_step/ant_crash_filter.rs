@@ -31,7 +31,7 @@ impl WorldStep for AntCrashFilter {
     fn get_orders(&self) -> Orders {
         let given_orders = self.delegate.get_orders();
 
-        let unmoved_ants: HashSet<Position> = HashSet::from_iter(
+        let mut unmoved_ants: HashSet<Position> = HashSet::from_iter(
             self.delegate.all_my_ants().iter().cloned(),
         );
 
@@ -54,6 +54,7 @@ impl WorldStep for AntCrashFilter {
                 } else {
                     executed_orders.push(order.clone());
                     moved_ants.insert(target);
+                    unmoved_ants.remove(&order.pos);
 
                     // Keep resolving old awaiting orders, who's target
                     // is the same as this (just executed) order's source.
@@ -263,5 +264,26 @@ mod tests {
             .add_order(pos(0, 0).east());
 
         assert_orders!(filter);
+    }
+
+    /// Ants are moved in order to the right (east)
+    #[test]
+    fn tripple_ant_ordered_queue() {
+        let mut filter = AntCrashFilter::new_from_line_map(
+            "aaa-
+            ",
+        );
+
+        filter
+            .add_order(pos(0, 2).east())
+            .add_order(pos(0, 1).east())
+            .add_order(pos(0, 0).east());
+
+        assert_orders!(
+            filter,
+            pos(0, 2).east(),
+            pos(0, 1).east(),
+            pos(0, 0).east()
+        );
     }
 }
