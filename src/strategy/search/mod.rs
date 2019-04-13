@@ -1,73 +1,26 @@
+pub mod bfs;
+
 use crate::strategy::*;
+use bfs::*;
 use std::collections::HashSet;
 
-/// Nearest orders to 'to' from 'from', is actually a reversed breadth first
-/// search starting with 'to' and searching for the first maching positions
-/// in 'from'.
-pub fn nearest_orders(
-    world: &WorldStep,
-    to: Position,
-    from: &HashSet<Position>,
-    max_result_len: usize,
-    search_len_cuttoff: usize,
-) -> Vec<Order> {
-    // Keep track current positions to search from
-    let mut fringe: HashSet<Position> = HashSet::new();
+pub trait Search {
+    /// Search nearest orders from 'from' to 'to'. The search can
+    /// be limited/scoped by number of sought results and search
+    /// lenght (effort) cuttoff.
+    fn search(
+        &self,
+        world: &WorldStep,
+        to: Position,
+        from: &HashSet<Position>,
+        max_result_len: usize,
+        search_len_cuttoff: usize,
+    ) -> Vec<Order>;
+}
 
-    // Keep track of the old fringe, since we want to avoid
-    // searching in the wrong direction.
-    let mut old_fringe: HashSet<Position> = HashSet::new();
-
-    // Keep track of positions to use in the next iteration.
-    let mut next_fringe: HashSet<Position> = HashSet::new();
-    let mut results = vec![];
-
-    // Add end position to fringe, since we start the search from there.
-    fringe.insert(to);
-
-    let mut search_len = 0;
-
-    'search: while !fringe.is_empty()
-        && results.len() < max_result_len
-        && results.len() < from.len()
-        && search_len < search_len_cuttoff
-    {
-        search_len += 1;
-        for pos in fringe.clone() {
-            let next_fringe_orders: Orders = world
-                .available_directions(&pos)
-                .iter()
-                .map(|dir| pos.order(*dir))
-                .filter(|order| {
-                    let target = order.target_pos(world.size());
-                    !old_fringe.contains(&target)
-                        && !fringe.contains(&target)
-                })
-                .collect();
-
-            for order in next_fringe_orders {
-                let target = order.target_pos(world.size());
-
-                if from.contains(&target) {
-                    // Add reversed order, since we are searching backwards.
-                    results.push(order.reverse(world.size()));
-
-                    if results.len() >= max_result_len
-                        || results.len() >= from.len()
-                    {
-                        // No nead to search more if we do not
-                        // need any more results
-                        break 'search;
-                    }
-                }
-                next_fringe.insert(target);
-            }
-        }
-        old_fringe = fringe;
-        fringe = next_fringe;
-        next_fringe = HashSet::new();
-    }
-    results
+/// Ceate default search algorithms
+pub fn create_search() -> Box<Search> {
+    Box::new(BFS {})
 }
 
 #[cfg(test)]
@@ -83,7 +36,7 @@ mod tests {
              -----",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(0, 0),
             &set![pos(0, 2)],
@@ -101,8 +54,13 @@ mod tests {
              -a%",
         );
 
-        let actual =
-            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10, 5);
+        let actual = create_search().search(
+            world,
+            pos(0, 0),
+            &set![pos(1, 1)],
+            10,
+            5,
+        );
         assert_eq!(actual, vec![pos(1, 1).west()]);
     }
 
@@ -114,8 +72,13 @@ mod tests {
              %%",
         );
 
-        let actual =
-            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10, 5);
+        let actual = create_search().search(
+            world,
+            pos(0, 0),
+            &set![pos(1, 1)],
+            10,
+            5,
+        );
         assert_eq!(actual, vec![pos(1, 1).north()]);
     }
 
@@ -133,7 +96,7 @@ mod tests {
              -------",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(4, 3),
             &set![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
@@ -161,7 +124,7 @@ mod tests {
              ---%b%",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(4, 4),
             &set![pos(1, 0)],
@@ -186,7 +149,7 @@ mod tests {
              -------",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(0, 4),
             &set![pos(1, 1), pos(1, 2), pos(2, 4)],
@@ -204,7 +167,7 @@ mod tests {
              -%-----",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(0, 4),
             &set![pos(1, 1)],
@@ -226,7 +189,7 @@ mod tests {
             %---a-",
         );
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             world,
             pos(1, 1),
             &set![pos(0, 4), pos(1, 5), pos(2, 4)],
@@ -248,7 +211,7 @@ mod tests {
         let size = pos(32_000, 32_000);
         let world_step = BasicWorldStep::new(world, size);
 
-        let actual = nearest_orders(
+        let actual = create_search().search(
             &world_step,
             pos(0, 0),
             &set![pos(0, 2)],
@@ -277,8 +240,13 @@ mod tests {
         // The nearest ant is last in the list
         ants.insert(pos(0, 99));
 
-        let actual =
-            nearest_orders(&world_step, pos(0, 0), &ants, 1, 200);
+        let actual = create_search().search(
+            &world_step,
+            pos(0, 0),
+            &ants,
+            1,
+            200,
+        );
 
         assert_eq![actual, vec![pos(0, 99).west()]];
     }
