@@ -16,8 +16,13 @@ impl Strategy for GatherFood {
 
         for food in world_step.get_positions(Tile::Food) {
             // only interrested in the nearest ant
-            let search_orders =
-                nearest_orders(world_step, food, ants_available, 1);
+            let search_orders = nearest_orders(
+                world_step,
+                food,
+                ants_available,
+                1,
+                20,
+            );
 
             if !search_orders.is_empty() {
                 let first_order = search_orders

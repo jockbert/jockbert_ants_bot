@@ -9,6 +9,7 @@ pub fn nearest_orders(
     to: Position,
     from: &HashSet<Position>,
     max_result_len: usize,
+    search_len_cuttoff: usize,
 ) -> Vec<Order> {
     // Keep track current positions to search from
     let mut fringe: HashSet<Position> = HashSet::new();
@@ -24,10 +25,14 @@ pub fn nearest_orders(
     // Add end position to fringe, since we start the search from there.
     fringe.insert(to);
 
+    let mut search_len = 0;
+
     'search: while !fringe.is_empty()
         && results.len() < max_result_len
         && results.len() < from.len()
+        && search_len < search_len_cuttoff
     {
+        search_len += 1;
         for pos in fringe.clone() {
             let next_fringe_orders: Orders = world
                 .available_directions(&pos)
@@ -78,8 +83,13 @@ mod tests {
              -----",
         );
 
-        let actual =
-            nearest_orders(world, pos(0, 0), &set![pos(0, 2)], 10);
+        let actual = nearest_orders(
+            world,
+            pos(0, 0),
+            &set![pos(0, 2)],
+            10,
+            10,
+        );
 
         assert_eq!(actual, vec![pos(0, 2).west()]);
     }
@@ -92,7 +102,7 @@ mod tests {
         );
 
         let actual =
-            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
+            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10, 5);
         assert_eq!(actual, vec![pos(1, 1).west()]);
     }
 
@@ -105,7 +115,7 @@ mod tests {
         );
 
         let actual =
-            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10);
+            nearest_orders(world, pos(0, 0), &set![pos(1, 1)], 10, 5);
         assert_eq!(actual, vec![pos(1, 1).north()]);
     }
 
@@ -127,6 +137,7 @@ mod tests {
             world,
             pos(4, 3),
             &set![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
+            10,
             10,
         );
         assert_eq!(
@@ -150,8 +161,13 @@ mod tests {
              ---%b%",
         );
 
-        let actual =
-            nearest_orders(world, pos(4, 4), &set![pos(1, 0)], 10);
+        let actual = nearest_orders(
+            world,
+            pos(4, 4),
+            &set![pos(1, 0)],
+            10,
+            20,
+        );
         assert_eq!(actual, vec![pos(1, 0).west()]);
     }
 
@@ -175,6 +191,7 @@ mod tests {
             pos(0, 4),
             &set![pos(1, 1), pos(1, 2), pos(2, 4)],
             10,
+            20,
         );
         assert_eq!(actual, vec![pos(2, 4).south()]);
     }
@@ -187,8 +204,13 @@ mod tests {
              -%-----",
         );
 
-        let actual =
-            nearest_orders(world, pos(0, 4), &set![pos(1, 1)], 10);
+        let actual = nearest_orders(
+            world,
+            pos(0, 4),
+            &set![pos(1, 1)],
+            10,
+            20,
+        );
         assert_eq!(actual, vec![]);
     }
 
@@ -209,6 +231,7 @@ mod tests {
             pos(1, 1),
             &set![pos(0, 4), pos(1, 5), pos(2, 4)],
             2,
+            20,
         );
         assert_eq!(actual.len(), 2);
     }
@@ -230,6 +253,7 @@ mod tests {
             pos(0, 0),
             &set![pos(0, 2)],
             2,
+            20,
         );
 
         assert_eq![actual, vec![pos(0, 2).west()]];
@@ -253,7 +277,8 @@ mod tests {
         // The nearest ant is last in the list
         ants.insert(pos(0, 99));
 
-        let actual = nearest_orders(&world_step, pos(0, 0), &ants, 1);
+        let actual =
+            nearest_orders(&world_step, pos(0, 0), &ants, 1, 200);
 
         assert_eq![actual, vec![pos(0, 99).west()]];
     }
