@@ -199,6 +199,23 @@ mod tests {
         assert_eq!(actual.len(), 2);
     }
 
+    #[test]
+    fn restricted_by_cuttoff_length() {
+        let world = &AvoidWaterFilter::new_from_line_map("b--a----");
+        let from = set![pos(0, 3)];
+        let search = create_search();
+
+        let actual_with_cuttoff_2 =
+            search.search(world, pos(0, 0), &from, 1, 2);
+
+        assert_eq!(actual_with_cuttoff_2, vec![]);
+
+        let actual_with_cuttoff_3 =
+            search.search(world, pos(0, 0), &from, 1, 3);
+
+        assert_eq!(actual_with_cuttoff_3, vec![pos(0, 3).west()]);
+    }
+
     /// Using a sizable world, in combination of searching for
     /// more results than there are solutions, might provoke
     /// unnessesary long computations.
