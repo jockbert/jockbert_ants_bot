@@ -222,7 +222,8 @@ mod tests {
         assert_eq![actual, vec![pos(0, 2).west()]];
     }
 
-    //
+    /// Using sizeable world together with alot of possible
+    /// from-ants. Should not generate performance problems.
     #[test]
     fn performance_test() {
         let world = world("b-------------------a--");
@@ -237,7 +238,7 @@ mod tests {
             }
         }
 
-        // The nearest ant is last in the list
+        // The nearest ant is last in the set
         ants.insert(pos(0, 99));
 
         let actual = create_search().search(
