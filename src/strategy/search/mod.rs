@@ -1,7 +1,9 @@
 pub mod bfs;
+pub mod manhattan_filter;
 
 use crate::strategy::*;
 use bfs::*;
+use manhattan_filter::*;
 use std::collections::HashSet;
 
 pub trait Search {
@@ -14,13 +16,15 @@ pub trait Search {
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,
-        search_len_cuttoff: usize,
+        cutoff_len: usize,
     ) -> Vec<Order>;
 }
 
 /// Ceate default search algorithms
 pub fn create_search() -> Box<Search> {
-    Box::new(BFS {})
+    Box::new(ManhattanFilter {
+        inner: Box::new(BFS {}),
+    })
 }
 
 #[cfg(test)]

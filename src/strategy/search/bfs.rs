@@ -13,7 +13,7 @@ impl Search for BFS {
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,
-        search_len_cuttoff: usize,
+        cutoff_len: usize,
     ) -> Vec<Order> {
         // Keep track current positions to search from
         let mut fringe: HashSet<Position> = HashSet::new();
@@ -34,7 +34,7 @@ impl Search for BFS {
         'search: while !fringe.is_empty()
             && results.len() < max_result_len
             && results.len() < from.len()
-            && search_len < search_len_cuttoff
+            && search_len < cutoff_len
         {
             search_len += 1;
             for pos in fringe.clone() {
