@@ -15,6 +15,7 @@ fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
 
     (row_distance + col_distance) as u16
 }
+
 impl Search for ManhattanFilter {
     fn search(
         &self,
@@ -24,11 +25,11 @@ impl Search for ManhattanFilter {
         max_result_len: usize,
         cutoff_len: usize,
     ) -> Vec<Order> {
+        let limit = cutoff_len as u16;
+        let size = world.size();
         let filtered_from: HashSet<Position> = from
             .iter()
-            .filter(|&pos| {
-                manhattan(pos, &to, world.size()) <= cutoff_len as u16
-            })
+            .filter(|&pos| manhattan(pos, &to, size) <= limit)
             .cloned()
             .collect();
 
