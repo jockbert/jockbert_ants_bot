@@ -11,8 +11,8 @@ impl BasicWorldStep {
     pub fn new(world: WorldState, size: Position) -> BasicWorldStep {
         BasicWorldStep {
             given_orders: vec![],
-            world: world,
-            size: size,
+            world,
+            size,
         }
     }
 

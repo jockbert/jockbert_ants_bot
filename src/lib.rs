@@ -3,10 +3,10 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 #[macro_use]
-#[cfg(test)]
-mod utilities;
-mod strategy;
-mod world_step;
+//#[cfg(test)]
+pub mod utilities;
+pub mod strategy;
+pub mod world_step;
 
 use crate::strategy::*;
 use crate::world_step::*;

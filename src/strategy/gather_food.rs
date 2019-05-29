@@ -67,7 +67,7 @@ mod tests {
     }
 
     #[test]
-    fn orders_limited_by_food() {
+    fn orders_limited_by_food_so_use_nearest_ant() {
         let world_step = &mut BasicWorldStep::new_from_line_map(
             "----------
              -a---*--a-
@@ -86,7 +86,7 @@ mod tests {
     }
 
     #[test]
-    fn orders_limited_by_ants() {
+    fn orders_limited_by_ants_so_go_to_neares_food() {
         let world_step = &mut BasicWorldStep::new_from_line_map(
             "----*----
              ---------

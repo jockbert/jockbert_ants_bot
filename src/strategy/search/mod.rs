@@ -1,9 +1,11 @@
 pub mod bfs;
 pub mod manhattan_filter;
+pub mod repeated_a_star;
 
 use crate::strategy::*;
-use bfs::*;
+pub use bfs::*;
 use manhattan_filter::*;
+pub use repeated_a_star::*;
 use std::collections::HashSet;
 
 pub trait Search {
@@ -23,7 +25,7 @@ pub trait Search {
 /// Ceate default search algorithms
 pub fn create_search() -> Box<Search> {
     Box::new(ManhattanFilter {
-        inner: Box::new(BFS {}),
+        inner: Box::new(RepeatedAStar {}),
     })
 }
 
@@ -205,7 +207,8 @@ mod tests {
 
     #[test]
     fn restricted_by_cuttoff_length() {
-        let world = &AvoidWaterFilter::new_from_line_map("b--a----");
+        let world =
+            &AvoidWaterFilter::new_from_line_map("b--a-------");
         let from = set![pos(0, 3)];
         let search = create_search();
 
@@ -253,23 +256,46 @@ mod tests {
 
         let mut ants: HashSet<Position> = set![];
 
-        for col in 100..200 {
+        for col in 200..400 {
             for row in 0..20 {
                 ants.insert(pos(row, col));
             }
         }
 
-        // The nearest ant is last in the set
-        ants.insert(pos(0, 99));
+        // The nearest ants is last in the set, with a little randomness
+        ants.insert(pos(0, 103));
+        ants.insert(pos(0, 104));
+        ants.insert(pos(0, 105));
+        ants.insert(pos(0, 106));
+        ants.insert(pos(0, 107));
+        ants.insert(pos(0, 100));
+        ants.insert(pos(0, 101));
+        ants.insert(pos(0, 102));
+        ants.insert(pos(0, 108));
+        ants.insert(pos(0, 109));
 
         let actual = create_search().search(
             &world_step,
             pos(0, 0),
             &ants,
-            1,
-            200,
+            10,
+            500,
         );
 
-        assert_eq![actual, vec![pos(0, 99).west()]];
+        assert_eq![
+            actual,
+            vec![
+                pos(0, 100).west(),
+                pos(0, 101).west(),
+                pos(0, 102).west(),
+                pos(0, 103).west(),
+                pos(0, 104).west(),
+                pos(0, 105).west(),
+                pos(0, 106).west(),
+                pos(0, 107).west(),
+                pos(0, 108).west(),
+                pos(0, 109).west()
+            ]
+        ];
     }
 }

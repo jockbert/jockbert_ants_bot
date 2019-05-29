@@ -4,7 +4,7 @@ pub struct ManhattanFilter {
     pub inner: Box<Search>,
 }
 
-fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
+pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
     let row_diff = (i64::from(a.row) - i64::from(b.row)).abs();
     let col_diff = (i64::from(a.col) - i64::from(b.col)).abs();
 
