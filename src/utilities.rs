@@ -1,4 +1,5 @@
 use ants_ai_challenge_api::*;
+use std::collections::HashSet;
 
 /// Create a world representation from multi
 /// line string representing the world as a 2d
@@ -17,32 +18,43 @@ use ants_ai_challenge_api::*;
 /// ```
 ///
 pub fn world(multi_line_map: &'static str) -> WorldState {
-    let map = trim_lines(multi_line_map);
-
-    let x =
-        map.lines().zip(Indexer::new()).flat_map(|(line, row)| {
-            line.chars().zip(Indexer::new()).map(
-                move |(ch, column)| {
-                    (ch, pos(row as u16, column as u16))
-                },
-            )
-        });
-
     fn offset_from(a: char, b: char) -> u8 {
         b as u8 - a as u8
     }
 
-    x.fold(WorldState::default(), |world, (ch, pos)| match ch {
-        '*' => world.food(pos),
-        '%' => world.water(pos),
-        c @ '0'...'9' => world.hill(pos, offset_from('0', c)),
-        c @ 'a'...'j' => world.live_ant(pos, offset_from('a', c)),
-        c @ 'A'...'J' => {
-            let player = offset_from('A', c);
-            world.live_ant(pos.clone(), player).hill(pos, player)
-        }
-        _ => world,
-    })
+    chars_with_pos(multi_line_map).into_iter().fold(
+        WorldState::default(),
+        |world, (ch, pos)| match ch {
+            '*' => world.food(pos),
+            '%' => world.water(pos),
+            c @ '0'...'9' => {
+                world.hill(pos.clone(), offset_from('0', c))
+            }
+            c @ 'a'...'j' => world.live_ant(pos, offset_from('a', c)),
+            c @ 'A'...'J' => {
+                let player = offset_from('A', c);
+                world.live_ant(pos.clone(), player).hill(pos, player)
+            }
+            _ => world,
+        },
+    )
+}
+
+/// Retireves all positions of character 'x' in a 2D coordinate system.
+pub fn positions_of_x(multi_lines: &str) -> HashSet<Position> {
+    positions_of('x', multi_lines)
+}
+
+/// Retireves all positions of given character in a 2D coordinate system.
+pub fn positions_of(
+    char_to_find: char,
+    multi_lines: &str,
+) -> HashSet<Position> {
+    chars_with_pos(multi_lines)
+        .into_iter()
+        .filter(|(ch, _)| *ch == char_to_find)
+        .map(|(_, pos)| pos)
+        .collect()
 }
 
 pub fn serialize_world(
@@ -117,16 +129,31 @@ pub fn size_of_world(multi_line_map: &'static str) -> Position {
     pos(rows, cols)
 }
 
+/// Splits a multi line string up into individual characters
+/// and corresponding position.
+fn chars_with_pos(map: &str) -> Vec<(char, Position)> {
+    trim_lines(map)
+        .lines()
+        .zip(Indexer::new())
+        .flat_map(|(line, row)| {
+            line.chars().zip(Indexer::new()).map(
+                move |(ch, column)| {
+                    (ch, pos(row as u16, column as u16))
+                },
+            )
+        })
+        .collect()
+}
+
 /// Trim away left and right padding of multi line string
 /// and removes empty lines.
-fn trim_lines(multi_lines: &'static str) -> String {
-    let result: Vec<_> = multi_lines
+fn trim_lines(multi_lines: &str) -> String {
+    multi_lines
         .lines()
-        .map(|l| l.trim())
+        .map(str::trim)
         .filter(|l| !l.is_empty())
-        .collect();
-
-    result.join("\n")
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 struct Indexer {
@@ -247,6 +274,28 @@ mod tests {
                  
                  b
                  c  "
+            )
+        )
+    }
+
+    #[test]
+    fn positions_of_success() {
+        assert_eq!(
+            set!(
+                pos(0, 1),
+                pos(0, 2),
+                pos(1, 0),
+                pos(1, 3),
+                pos(6, 0)
+            ),
+            positions_of_x(
+                "-xx-
+                 x--x
+                 -
+                 X
+                 a
+                 -
+                 x"
             )
         )
     }
