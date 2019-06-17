@@ -28,39 +28,19 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
             )
         });
 
+    fn offset_from(a: char, b: char) -> u8 {
+        b as u8 - a as u8
+    }
+
     x.fold(WorldState::default(), |world, (ch, pos)| match ch {
-        'a' => world.live_ant(pos, 0),
-        'b' => world.live_ant(pos, 1),
-        'c' => world.live_ant(pos, 2),
-        'd' => world.live_ant(pos, 3),
-        'e' => world.live_ant(pos, 4),
-        'f' => world.live_ant(pos, 5),
-        'g' => world.live_ant(pos, 6),
-        'h' => world.live_ant(pos, 7),
-        'i' => world.live_ant(pos, 8),
-        'j' => world.live_ant(pos, 9),
-        'A' => world.live_ant(pos.clone(), 0).hill(pos, 0),
-        'B' => world.live_ant(pos.clone(), 1).hill(pos, 1),
-        'C' => world.live_ant(pos.clone(), 2).hill(pos, 2),
-        'D' => world.live_ant(pos.clone(), 3).hill(pos, 3),
-        'E' => world.live_ant(pos.clone(), 4).hill(pos, 4),
-        'F' => world.live_ant(pos.clone(), 5).hill(pos, 5),
-        'G' => world.live_ant(pos.clone(), 6).hill(pos, 6),
-        'H' => world.live_ant(pos.clone(), 7).hill(pos, 7),
-        'I' => world.live_ant(pos.clone(), 8).hill(pos, 8),
-        'J' => world.live_ant(pos.clone(), 9).hill(pos, 9),
-        '0' => world.hill(pos, 0),
-        '1' => world.hill(pos, 1),
-        '2' => world.hill(pos, 2),
-        '3' => world.hill(pos, 3),
-        '4' => world.hill(pos, 4),
-        '5' => world.hill(pos, 5),
-        '6' => world.hill(pos, 6),
-        '7' => world.hill(pos, 7),
-        '8' => world.hill(pos, 8),
-        '9' => world.hill(pos, 9),
         '*' => world.food(pos),
         '%' => world.water(pos),
+        c @ '0'...'9' => world.hill(pos, offset_from('0', c)),
+        c @ 'a'...'j' => world.live_ant(pos, offset_from('a', c)),
+        c @ 'A'...'J' => {
+            let player = offset_from('A', c);
+            world.live_ant(pos.clone(), player).hill(pos, player)
+        }
         _ => world,
     })
 }
