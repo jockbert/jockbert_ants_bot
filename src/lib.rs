@@ -48,12 +48,6 @@ impl Agent for FooAgent {
         let size =
             pos(self.params.rows as u16, self.params.cols as u16);
 
-        // eprintln!(
-        //    "\nTurn {}\n{}\n",
-        //    turn_count,
-        //    utilities::serialize_world(&world, &size)
-        // );
-
         let world_step = BasicWorldStep::new(world, size);
         let crash_filter = AntCrashFilter::new(Box::new(world_step));
         let mut water_filter =
