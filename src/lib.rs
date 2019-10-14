@@ -59,7 +59,7 @@ impl Agent for FooAgent {
         let mut water_filter =
             AvoidWaterFilter::new(Box::new(crash_filter));
 
-        let strategy = &CompositeStrategy::new();
+        let strategy = &CompositeStrategy::new_with_default();
 
         let orders = strategy.apply(&water_filter, &mut my_ants);
 

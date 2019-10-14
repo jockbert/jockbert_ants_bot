@@ -7,7 +7,7 @@ pub struct CompositeStrategy {
 }
 
 impl CompositeStrategy {
-    pub fn new() -> CompositeStrategy {
+    pub fn new_with_default() -> CompositeStrategy {
         CompositeStrategy {
             strategies: vec![
                 &GatherFood {},
@@ -49,7 +49,7 @@ mod tests {
              -*-a--a-*-
              ----------",
         );
-        let strategy = &CompositeStrategy::new();
+        let strategy = &CompositeStrategy::new_with_default();
 
         let left_ant = pos(1, 3);
         let right_ant = pos(1, 6);
