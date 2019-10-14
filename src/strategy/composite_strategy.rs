@@ -9,7 +9,11 @@ pub struct CompositeStrategy {
 impl CompositeStrategy {
     pub fn new() -> CompositeStrategy {
         CompositeStrategy {
-            strategies: vec![&GatherFood {}, &RandomWalk {}],
+            strategies: vec![
+                &GatherFood {},
+                &SpreadOutScout {},
+                &RandomWalk {},
+            ],
         }
     }
 }
