@@ -136,7 +136,7 @@ impl RepeatedAStar {
         let mut queue: BinaryHeap<TargetedVisit> = BinaryHeap::new();
 
         // searching backwards from "to" to "from".
-        // Last transtiton adjacent to "from", is first player order to conduct.
+        // Last transition adjacent to "from", is first player order to conduct.
         queue.push(Visit::start(&to).with_target(&from, &size));
 
         for (_pos, visit) in visited.iter() {
@@ -175,7 +175,7 @@ impl RepeatedAStar {
 
 impl Search for RepeatedAStar {
     /// Nearest orders to 'to' from 'from', is actually a reversed breadth first
-    /// search starting with 'to' and searching for the first maching positions
+    /// search starting with 'to' and searching for the first matching positions
     /// in 'from'.
     fn search(
         &self,

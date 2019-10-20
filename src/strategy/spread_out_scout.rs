@@ -26,7 +26,7 @@ impl Strategy for SpreadOutScout {
         let mut result_orders: Vec<Order> = Vec::new();
 
         for point in grid_points(world_step.size(), &pos(7, 7)) {
-            // only interrested in the nearest ant
+            // only interested in the nearest ant
             let search_orders = create_search().search(
                 world_step,
                 point,

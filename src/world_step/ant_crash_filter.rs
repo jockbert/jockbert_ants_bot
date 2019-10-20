@@ -238,7 +238,7 @@ mod tests {
     }
 
     #[test]
-    fn tripple_ant_pileup_with_moving_ant() {
+    fn triple_ant_pileup_with_moving_ant() {
         let mut filter = AntCrashFilter::new_from_line_map(
             "aa-a
             ",
@@ -253,7 +253,7 @@ mod tests {
     }
 
     #[test]
-    fn tripple_ant_pileup_with_stationary_ant() {
+    fn triple_ant_pileup_with_stationary_ant() {
         let mut filter = AntCrashFilter::new_from_line_map(
             "aaa
             ",
@@ -268,7 +268,7 @@ mod tests {
 
     /// Ants are moved in order to the right (east)
     #[test]
-    fn tripple_ant_ordered_queue() {
+    fn triple_ant_ordered_queue() {
         let mut filter = AntCrashFilter::new_from_line_map(
             "aaa-
             ",

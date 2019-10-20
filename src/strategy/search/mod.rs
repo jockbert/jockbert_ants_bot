@@ -11,7 +11,7 @@ use std::collections::HashSet;
 pub trait Search {
     /// Search nearest orders from 'from' to 'to'. The search can
     /// be limited/scoped by number of sought results and search
-    /// lenght (effort) cuttoff.
+    /// length (effort) cutoff.
     fn search(
         &self,
         world: &WorldStep,
@@ -22,7 +22,7 @@ pub trait Search {
     ) -> Vec<Order>;
 }
 
-/// Ceate default search algorithms
+/// Create default search algorithms
 pub fn create_search() -> Box<Search> {
     Box::new(ManhattanFilter {
         inner: Box::new(RepeatedAStar {}),
@@ -184,7 +184,7 @@ mod tests {
     }
 
     /// Using three sources 'a' with the same length to target 'b'.
-    /// One of the ants should be masked out, but which sorce to be
+    /// One of the ants should be masked out, but which source to be
     /// masked out is implementation specific.
     #[test]
     fn restricted_by_max_results() {
@@ -206,26 +206,26 @@ mod tests {
     }
 
     #[test]
-    fn restricted_by_cuttoff_length() {
+    fn restricted_by_cutoff_length() {
         let world =
             &AvoidWaterFilter::new_from_line_map("b--a-------");
         let from = set![pos(0, 3)];
         let search = create_search();
 
-        let actual_with_cuttoff_2 =
+        let actual_with_cutoff_2 =
             search.search(world, pos(0, 0), &from, 1, 2);
 
-        assert_eq!(actual_with_cuttoff_2, vec![]);
+        assert_eq!(actual_with_cutoff_2, vec![]);
 
-        let actual_with_cuttoff_3 =
+        let actual_with_cutoff_3 =
             search.search(world, pos(0, 0), &from, 1, 3);
 
-        assert_eq!(actual_with_cuttoff_3, vec![pos(0, 3).west()]);
+        assert_eq!(actual_with_cutoff_3, vec![pos(0, 3).west()]);
     }
 
     /// Using a sizable world, in combination of searching for
     /// more results than there are solutions, might provoke
-    /// unnessesary long computations.
+    /// unnecessary long computations.
     ///
     /// This test should take too long time to execute if the
     /// implementation is bad.
@@ -246,7 +246,7 @@ mod tests {
         assert_eq![actual, vec![pos(0, 2).west()]];
     }
 
-    /// Using sizeable world together with alot of possible
+    /// Using sizable world together with a lot of possible
     /// from-ants. Should not generate performance problems.
     #[test]
     fn performance_test() {
