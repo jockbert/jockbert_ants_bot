@@ -9,7 +9,7 @@ pub struct GatherFood {}
 impl Strategy for GatherFood {
     fn apply(
         &self,
-        world_step: &WorldStep,
+        world_step: &dyn WorldStep,
         ants_available: &mut HashSet<Position>,
     ) -> Orders {
         let mut result_orders: Vec<Order> = Vec::new();
@@ -105,5 +105,4 @@ mod tests {
         assert_eq![ants, set![]];
         assert_eq![actual_orders, vec![ant.north()]];
     }
-
 }

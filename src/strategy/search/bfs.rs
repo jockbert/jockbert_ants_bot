@@ -9,7 +9,7 @@ impl Search for BFS {
     /// in 'from'.
     fn search(
         &self,
-        world: &WorldStep,
+        world: &dyn WorldStep,
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,

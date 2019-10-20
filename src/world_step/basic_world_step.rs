@@ -25,7 +25,7 @@ impl BasicWorldStep {
 }
 
 impl WorldStep for BasicWorldStep {
-    fn add_order(&mut self, order: Order) -> &mut WorldStep {
+    fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.given_orders.push(order);
         self
     }

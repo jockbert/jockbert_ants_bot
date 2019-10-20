@@ -20,7 +20,7 @@ pub enum Tile {
 /// Game world simulation step state.
 pub trait WorldStep {
     // Add an ant movement order.
-    fn add_order(&mut self, order: Order) -> &mut WorldStep;
+    fn add_order(&mut self, order: Order) -> &mut dyn WorldStep;
 
     // Get all effective orders accumulated in this step state.
     fn get_orders(&self) -> Orders;

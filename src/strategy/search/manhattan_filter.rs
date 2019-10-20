@@ -1,7 +1,7 @@
 use crate::strategy::search::*;
 
 pub struct ManhattanFilter {
-    pub inner: Box<Search>,
+    pub inner: Box<dyn Search>,
 }
 
 pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
@@ -19,7 +19,7 @@ pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
 impl Search for ManhattanFilter {
     fn search(
         &self,
-        world: &WorldStep,
+        world: &dyn WorldStep,
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,
@@ -58,7 +58,7 @@ mod tests {
     impl Search for MockedInner {
         fn search(
             &self,
-            _world: &WorldStep,
+            _world: &dyn WorldStep,
             to: Position,
             from: &HashSet<Position>,
             max_result_len: usize,
@@ -139,5 +139,4 @@ mod tests {
         }
         .search(world, to.clone(), &original_from, 11, 4);
     }
-
 }

@@ -19,9 +19,9 @@ fn random_direction(dirs: &[Direction]) -> Direction {
 impl Strategy for RandomWalk {
     fn apply(
         &self,
-        world_step: &WorldStep,
+        world_step: &dyn WorldStep,
         ants: &mut HashSet<Position>,
-    ) ->  Orders {
+    ) -> Orders {
         let orders: Vec<Order> = ants
             .iter()
             .map(|ant| {
@@ -31,6 +31,6 @@ impl Strategy for RandomWalk {
             })
             .collect();
 
-         orders
+        orders
     }
 }

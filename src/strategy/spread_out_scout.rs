@@ -20,7 +20,7 @@ fn grid_points(size: &Position, step: &Position) -> Vec<Position> {
 impl Strategy for SpreadOutScout {
     fn apply(
         &self,
-        world_step: &WorldStep,
+        world_step: &dyn WorldStep,
         ants_available: &mut HashSet<Position>,
     ) -> Orders {
         let mut result_orders: Vec<Order> = Vec::new();

@@ -16,7 +16,7 @@ pub use spread_out_scout::*;
 pub trait Strategy {
     fn apply(
         &self,
-        world_step: &WorldStep,
+        world_step: &dyn WorldStep,
         ants_available: &mut HashSet<Position>,
     ) -> Orders;
 }

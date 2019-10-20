@@ -5,12 +5,12 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 pub struct AntCrashFilter {
-    delegate: Box<WorldStep>,
+    delegate: Box<dyn WorldStep>,
 }
 
 impl AntCrashFilter {
-    pub fn new(delegate: Box<WorldStep>) -> AntCrashFilter {
-        AntCrashFilter { delegate: delegate }
+    pub fn new(delegate: Box<dyn WorldStep>) -> AntCrashFilter {
+        AntCrashFilter { delegate }
     }
 
     #[cfg(test)]
@@ -23,7 +23,7 @@ impl AntCrashFilter {
 }
 
 impl WorldStep for AntCrashFilter {
-    fn add_order(&mut self, order: Order) -> &mut WorldStep {
+    fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.delegate.add_order(order);
         self
     }

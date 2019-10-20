@@ -2,11 +2,11 @@ use crate::world_step::*;
 use ants_ai_challenge_api::*;
 
 pub struct AvoidWaterFilter {
-    delegate: Box<WorldStep>,
+    delegate: Box<dyn WorldStep>,
 }
 
 impl AvoidWaterFilter {
-    pub fn new(delegate: Box<WorldStep>) -> AvoidWaterFilter {
+    pub fn new(delegate: Box<dyn WorldStep>) -> AvoidWaterFilter {
         AvoidWaterFilter { delegate: delegate }
     }
 
@@ -18,7 +18,7 @@ impl AvoidWaterFilter {
 }
 
 impl WorldStep for AvoidWaterFilter {
-    fn add_order(&mut self, order: Order) -> &mut WorldStep {
+    fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.delegate.add_order(order);
         self
     }

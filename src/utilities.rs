@@ -25,11 +25,11 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
         |world, (ch, pos)| match ch {
             '*' => world.food(pos),
             '%' => world.water(pos),
-            c @ '0'...'9' => {
+            c @ '0'..='9' => {
                 world.hill(pos.clone(), offset_from('0', c))
             }
-            c @ 'a'...'j' => world.live_ant(pos, offset_from('a', c)),
-            c @ 'A'...'J' => {
+            c @ 'a'..='j' => world.live_ant(pos, offset_from('a', c)),
+            c @ 'A'..='J' => {
                 let player = offset_from('A', c);
                 world.live_ant(pos.clone(), player).hill(pos, player)
             }
@@ -185,6 +185,7 @@ macro_rules! set(
     );
 
 /// Assert that dut.get_orders equals expected orders.
+#[cfg(test)]
 macro_rules! assert_orders {
         ($cut:expr) => {
             assert_eq![$cut.get_orders(),vec![]];
@@ -201,6 +202,7 @@ macro_rules! assert_orders {
 
 /// Assert that dut.available_directions equals
 /// expected directions.
+#[cfg(test)]
 macro_rules! assert_dirs {
         ($cut:expr, $position:expr, $( $dir:expr ),*) => {
             let mut expected_dirs = Vec::new();

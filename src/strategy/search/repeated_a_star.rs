@@ -126,7 +126,7 @@ impl PartialOrd for TargetedVisit {
 impl RepeatedAStar {
     fn single_search(
         &self,
-        world: &WorldStep,
+        world: &dyn WorldStep,
         to: Position,
         from: Position,
         cutoff_len: usize,
@@ -179,7 +179,7 @@ impl Search for RepeatedAStar {
     /// in 'from'.
     fn search(
         &self,
-        world: &WorldStep,
+        world: &dyn WorldStep,
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,

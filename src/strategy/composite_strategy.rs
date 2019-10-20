@@ -3,7 +3,7 @@ use ants_ai_challenge_api::Orders;
 use ants_ai_challenge_api::Position;
 
 pub struct CompositeStrategy {
-    strategies: Vec<&'static Strategy>,
+    strategies: Vec<&'static dyn Strategy>,
 }
 
 impl CompositeStrategy {
@@ -21,7 +21,7 @@ impl CompositeStrategy {
 impl Strategy for CompositeStrategy {
     fn apply(
         &self,
-        world_step: &WorldStep,
+        world_step: &dyn WorldStep,
         ants_available: &mut HashSet<Position>,
     ) -> Orders {
         let mut result_orders: Vec<Order> = Vec::new();

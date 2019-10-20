@@ -14,7 +14,7 @@ pub trait Search {
     /// length (effort) cutoff.
     fn search(
         &self,
-        world: &WorldStep,
+        world: &dyn WorldStep,
         to: Position,
         from: &HashSet<Position>,
         max_result_len: usize,
@@ -23,7 +23,7 @@ pub trait Search {
 }
 
 /// Create default search algorithms
-pub fn create_search() -> Box<Search> {
+pub fn create_search() -> Box<dyn Search> {
     Box::new(ManhattanFilter {
         inner: Box::new(RepeatedAStar {}),
     })
