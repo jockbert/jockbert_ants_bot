@@ -5,8 +5,8 @@ use std::collections::HashSet;
 pub mod composite_strategy;
 pub mod gather_food;
 pub mod random_walk;
-pub mod spread_out_scout;
 pub mod search;
+pub mod spread_out_scout;
 
 pub use composite_strategy::*;
 pub use gather_food::*;

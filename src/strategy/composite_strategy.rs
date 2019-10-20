@@ -1,6 +1,7 @@
 use crate::strategy::*;
-use ants_ai_challenge_api::Orders;
-use ants_ai_challenge_api::Position;
+use crate::world_step::WorldStep;
+
+use std::collections::HashSet;
 
 pub struct CompositeStrategy {
     strategies: Vec<&'static dyn Strategy>,

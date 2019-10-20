@@ -1,8 +1,8 @@
 use crate::strategy::search::*;
 use crate::strategy::*;
 use crate::world_step::*;
-use ants_ai_challenge_api::Orders;
-use ants_ai_challenge_api::Position;
+
+use std::collections::HashSet;
 
 pub struct GatherFood {}
 
