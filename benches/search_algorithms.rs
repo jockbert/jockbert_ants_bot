@@ -13,7 +13,7 @@ use jockbot_ants_bot::utilities::*;
 
 use std::collections::HashSet;
 
-fn search(search: Box<Search>) {
+fn search(search: Box<dyn Search>) {
     let world = world("b-------------------a--");
     let size = pos(32_000, 32_000);
     let world_step = BasicWorldStep::new(world, size);

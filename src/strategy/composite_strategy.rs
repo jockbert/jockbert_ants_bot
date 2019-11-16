@@ -11,6 +11,7 @@ impl CompositeStrategy {
     pub fn new_with_default() -> CompositeStrategy {
         CompositeStrategy {
             strategies: vec![
+                &HillRaiser {},
                 &GatherFood {},
                 &SpreadOutScout {},
                 &RandomWalk {},

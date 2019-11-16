@@ -7,7 +7,7 @@ pub struct AvoidWaterFilter {
 
 impl AvoidWaterFilter {
     pub fn new(delegate: Box<dyn WorldStep>) -> AvoidWaterFilter {
-        AvoidWaterFilter { delegate: delegate }
+        AvoidWaterFilter { delegate }
     }
 
     #[cfg(test)]
