@@ -63,7 +63,53 @@ impl WorldStep for BasicWorldStep {
         match tile {
             Tile::Food => self.world.foods.clone(),
             Tile::Water => self.world.waters.clone(),
+            Tile::EnemyHill => {
+                let mut x = self.world.hills.clone();
+                if !x.is_empty() {
+                    // Remove my own hills from list.
+                    x.remove(0);
+                }
+                x.into_iter().flatten().collect()
+            }
             _ => vec![],
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_get_enemy_hills() {
+        let step = BasicWorldStep::new_from_line_map(
+            "
+            03-
+            -1-
+            2--
+            ",
+        );
+
+        // All enemy hills are listed, but not my own (zero).
+        // The vec item order is in:
+        // 1. Enemy index order and then
+        // 2. Left-to-right-on-top-to-bottom-lines read order
+        //    (as parsed in the given string)
+        assert_eq!(
+            vec![pos(1, 1), pos(2, 0), pos(0, 1)],
+            step.get_positions(Tile::EnemyHill)
+        );
+    }
+
+    #[test]
+    fn no_hills_at_all() {
+        let step_without_hills =
+            BasicWorldStep::new_from_line_map("-----");
+
+        let empty: Vec<Position> = vec![];
+        assert_eq!(
+            empty,
+            step_without_hills.get_positions(Tile::EnemyHill)
+        );
     }
 }

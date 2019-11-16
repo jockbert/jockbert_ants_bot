@@ -15,6 +15,7 @@ pub enum Tile {
     Empty,
     Water,
     Food,
+    EnemyHill,
 }
 
 /// Game world simulation step state.
