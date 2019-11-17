@@ -21,7 +21,7 @@ impl Strategy for GatherFood {
                 food,
                 ants_available,
                 1,
-                20,
+                15,
             );
 
             if !search_orders.is_empty() {
