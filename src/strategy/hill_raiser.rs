@@ -17,8 +17,8 @@ impl Strategy for HillRaiser {
         for hill in world_step.get_positions(Tile::EnemyHill) {
             let search_orders = create_search().search(
                 world_step,
-                hill,
                 ants_available,
+                hill,
                 5,
                 20,
             );

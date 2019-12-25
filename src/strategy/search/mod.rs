@@ -15,8 +15,8 @@ pub trait Search {
     fn search(
         &self,
         world: &dyn WorldStep,
-        to: Position,
         from: &HashSet<Position>,
+        to: Position,
         max_result_len: usize,
         cutoff_len: usize,
     ) -> Vec<Order>;
@@ -44,8 +44,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(0, 0),
             &set![pos(0, 2)],
+            pos(0, 0),
             10,
             10,
         );
@@ -62,8 +62,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(0, 0),
             &set![pos(1, 1)],
+            pos(0, 0),
             10,
             5,
         );
@@ -80,8 +80,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(0, 0),
             &set![pos(1, 1)],
+            pos(0, 0),
             10,
             5,
         );
@@ -104,8 +104,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(4, 3),
             &set![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
+            pos(4, 3),
             10,
             10,
         );
@@ -132,8 +132,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(4, 4),
             &set![pos(1, 0)],
+            pos(4, 4),
             10,
             20,
         );
@@ -157,8 +157,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(0, 4),
             &set![pos(1, 1), pos(1, 2), pos(2, 4)],
+            pos(0, 4),
             10,
             20,
         );
@@ -175,8 +175,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(0, 4),
             &set![pos(1, 1)],
+            pos(0, 4),
             10,
             20,
         );
@@ -197,8 +197,8 @@ mod tests {
 
         let actual = create_search().search(
             world,
-            pos(1, 1),
             &set![pos(0, 4), pos(1, 5), pos(2, 4)],
+            pos(1, 1),
             2,
             20,
         );
@@ -213,12 +213,12 @@ mod tests {
         let search = create_search();
 
         let actual_with_cutoff_2 =
-            search.search(world, pos(0, 0), &from, 1, 2);
+            search.search(world, &from, pos(0, 0), 1, 2);
 
         assert_eq!(actual_with_cutoff_2, vec![]);
 
         let actual_with_cutoff_3 =
-            search.search(world, pos(0, 0), &from, 1, 3);
+            search.search(world, &from, pos(0, 0), 1, 3);
 
         assert_eq!(actual_with_cutoff_3, vec![pos(0, 3).west()]);
     }
@@ -234,11 +234,10 @@ mod tests {
         let world = world("b-a--");
         let size = pos(32_000, 32_000);
         let world_step = BasicWorldStep::new(world, size);
-
         let actual = create_search().search(
             &world_step,
-            pos(0, 0),
             &set![pos(0, 2)],
+            pos(0, 0),
             2,
             20,
         );
@@ -276,8 +275,8 @@ mod tests {
 
         let actual = create_search().search(
             &world_step,
-            pos(0, 0),
             &ants,
+            pos(0, 0),
             10,
             500,
         );

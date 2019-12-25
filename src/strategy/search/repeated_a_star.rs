@@ -180,8 +180,8 @@ impl Search for RepeatedAStar {
     fn search(
         &self,
         world: &dyn WorldStep,
-        to: Position,
         from: &HashSet<Position>,
+        to: Position,
         max_result_len: usize,
         cutoff_len: usize,
     ) -> Vec<Order> {

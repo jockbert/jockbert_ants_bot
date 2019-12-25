@@ -29,8 +29,8 @@ impl Strategy for SpreadOutScout {
             // only interested in the nearest ant
             let search_orders = create_search().search(
                 world_step,
-                point,
                 ants_available,
+                point,
                 1,
                 30,
             );

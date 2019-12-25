@@ -18,8 +18,8 @@ impl Strategy for GatherFood {
             // only interrested in the nearest ant
             let search_orders = create_search().search(
                 world_step,
-                food,
                 ants_available,
+                food,
                 1,
                 15,
             );

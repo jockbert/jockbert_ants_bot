@@ -39,7 +39,7 @@ fn search(search: Box<dyn Search>) {
     ants.insert(pos(0, 109));
 
     let actual =
-        search.search(&world_step, pos(0, 0), &ants, 10, 500);
+        search.search(&world_step, &ants, pos(0, 0), 10, 500);
     assert_eq![
         actual,
         vec![

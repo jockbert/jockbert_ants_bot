@@ -20,8 +20,8 @@ impl Search for ManhattanFilter {
     fn search(
         &self,
         world: &dyn WorldStep,
-        to: Position,
         from: &HashSet<Position>,
+        to: Position,
         max_result_len: usize,
         cutoff_len: usize,
     ) -> Vec<Order> {
@@ -35,8 +35,8 @@ impl Search for ManhattanFilter {
 
         self.inner.search(
             world,
-            to,
             &filtered_from,
+            to,
             max_result_len,
             cutoff_len,
         )
@@ -59,8 +59,8 @@ mod tests {
         fn search(
             &self,
             _world: &dyn WorldStep,
-            to: Position,
             from: &HashSet<Position>,
+            to: Position,
             max_result_len: usize,
             cutoff_len: usize,
         ) -> Vec<Order> {
@@ -97,7 +97,7 @@ mod tests {
                 expected_cutoff_len: 0,
             }),
         }
-        .search(world, to.clone(), &original_from, 10, 0);
+        .search(world, &original_from, to.clone(), 10, 0);
 
         ManhattanFilter {
             inner: Box::new(MockedInner {
@@ -107,7 +107,7 @@ mod tests {
                 expected_cutoff_len: 1,
             }),
         }
-        .search(world, to.clone(), &original_from, 10, 1);
+        .search(world, &original_from, to.clone(), 10, 1);
 
         ManhattanFilter {
             inner: Box::new(MockedInner {
@@ -117,7 +117,7 @@ mod tests {
                 expected_cutoff_len: 2,
             }),
         }
-        .search(world, to.clone(), &original_from, 10, 2);
+        .search(world, &original_from, to.clone(), 10, 2);
 
         ManhattanFilter {
             inner: Box::new(MockedInner {
@@ -127,7 +127,7 @@ mod tests {
                 expected_cutoff_len: 3,
             }),
         }
-        .search(world, to.clone(), &original_from, 13, 3);
+        .search(world, &original_from, to.clone(), 13, 3);
 
         ManhattanFilter {
             inner: Box::new(MockedInner {
@@ -137,6 +137,6 @@ mod tests {
                 expected_cutoff_len: 4,
             }),
         }
-        .search(world, to.clone(), &original_from, 11, 4);
+        .search(world, &original_from, to.clone(), 11, 4);
     }
 }
