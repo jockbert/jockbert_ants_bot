@@ -111,11 +111,18 @@ pub fn serialize_world(
 /// Calculates the size of a given textual multi line map. The
 /// following example map has size (3,2):
 ///
-/// ---
-/// aa
-/// bb
-/// cc
-/// ---
+/// ```
+/// use ants_ai_challenge_api::pos;
+/// use jockbot_ants_bot::utilities::size_of_world;
+///
+/// let x = size_of_world("
+///      aa
+///      bb
+///      cc
+///      ");
+///  assert_eq![x, pos(3,2)];
+///  ```
+///
 pub fn size_of_world(multi_line_map: &'static str) -> Position {
     let trimmed_map = trim_lines(multi_line_map);
     let rows = trimmed_map.lines().count() as u16;
