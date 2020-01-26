@@ -1,6 +1,20 @@
 use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 
+/// Create an hash set
+#[macro_export]
+macro_rules! set(
+    () => { ::std::collections::HashSet::new(); };
+    ($($value:expr),+ ) => {
+        {
+            let mut m = ::std::collections::HashSet::new();
+            $(
+                m.insert($value);
+            )+
+            m
+        }};
+    );
+
 /// Create a world representation from multi
 /// line string representing the world as a 2d
 /// map with coordinate (0,0) as the first
@@ -53,6 +67,58 @@ pub fn positions_of(
         .filter(|(ch, _)| *ch == char_to_find)
         .map(|(_, pos)| pos)
         .collect()
+}
+
+/// Retrieves all orders from character 2D coordinate system.
+/// - 'W', 'w' and '<' indicates an order directed to the west.
+/// - 'E', 'e' and '>' indicates an order directed to the east.
+/// - 'N', 'n' and '^' indicates an order directed to the north.
+/// - 'S', 's', 'V' and 'v' indicates an order directed to the south.
+///
+/// # #[macro_use] extern crate crate_name;
+///
+/// # Example
+/// ```
+/// use ants_ai_challenge_api::pos;
+/// use jockbot_ants_bot::set;
+/// use jockbot_ants_bot::utilities::orders;
+///
+/// assert_eq![
+///     orders("
+///         --*<
+///         -*N-
+///         "),
+///     set![
+///         pos(0,3).west(),
+///         pos(1,2).north()]]
+/// ```
+pub fn orders(multi_line_map: &'static str) -> HashSet<Order> {
+    let mut result = set!();
+
+    chars_with_pos(multi_line_map).into_iter().for_each(
+        |(ch, pos)| {
+            match ch {
+                '^' => result.insert(pos.north()),
+                'V' => result.insert(pos.south()),
+                'v' => result.insert(pos.south()),
+                '<' => result.insert(pos.west()),
+                '>' => result.insert(pos.east()),
+                // ----
+                'N' => result.insert(pos.north()),
+                'S' => result.insert(pos.south()),
+                'W' => result.insert(pos.west()),
+                'E' => result.insert(pos.east()),
+                // ----
+                'n' => result.insert(pos.north()),
+                's' => result.insert(pos.south()),
+                'w' => result.insert(pos.west()),
+                'e' => result.insert(pos.east()),
+                _ => false,
+            };
+        },
+    );
+
+    result
 }
 
 pub fn serialize_world(
@@ -177,19 +243,6 @@ impl Iterator for Indexer {
         result
     }
 }
-
-#[macro_export]
-macro_rules! set(
-    () => { ::std::collections::HashSet::new(); };
-    ($($value:expr),+ ) => {
-        {
-            let mut m = ::std::collections::HashSet::new();
-            $(
-                m.insert($value);
-            )+
-            m
-        }};
-    );
 
 /// Assert that dut.get_orders equals expected orders.
 #[cfg(test)]
