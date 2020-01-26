@@ -35,7 +35,7 @@ impl Agent for FooAgent {
             dead_ants: world.dead_ants.clone(),
             foods: world.foods.clone(),
             hills: world.hills.clone(),
-            live_ants: world.live_ants.clone(),
+            live_ants: world.live_ants,
             waters: Vec::from_iter(
                 self.accumulated_water.iter().cloned(),
             ),

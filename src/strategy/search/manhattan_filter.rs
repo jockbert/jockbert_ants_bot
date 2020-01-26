@@ -137,6 +137,6 @@ mod tests {
                 expected_cutoff_len: 4,
             }),
         }
-        .search(world, &original_from, to.clone(), 11, 4);
+        .search(world, &original_from, to, 11, 4);
     }
 }

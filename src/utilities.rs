@@ -39,9 +39,7 @@ pub fn world(multi_line_map: &'static str) -> WorldState {
         |world, (ch, pos)| match ch {
             '*' => world.food(pos),
             '%' => world.water(pos),
-            c @ '0'..='9' => {
-                world.hill(pos.clone(), offset_from('0', c))
-            }
+            c @ '0'..='9' => world.hill(pos, offset_from('0', c)),
             c @ 'a'..='j' => world.live_ant(pos, offset_from('a', c)),
             c @ 'A'..='J' => {
                 let player = offset_from('A', c);

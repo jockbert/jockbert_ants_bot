@@ -164,7 +164,7 @@ impl RepeatedAStar {
                             targeted.visit.pos.clone(),
                             targeted.visit.clone(),
                         );
-                        queue.push(targeted.clone());
+                        queue.push(targeted);
                     }
                 });
         }
