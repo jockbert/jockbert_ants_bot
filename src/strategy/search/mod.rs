@@ -8,6 +8,7 @@ use manhattan_filter::*;
 pub use repeated_a_star::*;
 use std::collections::HashSet;
 
+/// Search from multiple origins to a singel target.
 pub trait Search {
     /// Search nearest orders from 'from' to 'to'. The search can
     /// be limited/scoped by number of sought results and search
