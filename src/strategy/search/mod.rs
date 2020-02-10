@@ -105,6 +105,17 @@ mod tests {
     use crate::utilities::*;
     use crate::world_step::{AvoidWaterFilter, BasicWorldStep};
 
+    fn assert_shortes_result_first(results: &[SearchResult]) {
+        let mut min_len: usize = 0;
+        for result in results {
+            let result_len = result.order_length();
+            assert!(
+                min_len <= result_len,
+                "Result length must be greater or equal to previous result length.");
+            min_len = result_len;
+        }
+    }
+
     fn assert_first_order_from_a_to_b(
         map: &'static str,
         expected_first_orders: &'static str,
@@ -126,14 +137,14 @@ mod tests {
             cutoff_len,
         );
 
+        assert_shortes_result_first(&actual);
+
         let actual = actual
             .iter()
             .flat_map(|res| res.first_order(world.size()))
-            .collect::<Vec<Order>>();
+            .collect::<HashSet<Order>>();
 
-        let expected = orders(expected_first_orders)
-            .into_iter()
-            .collect::<Vec<Order>>();
+        let expected = orders(expected_first_orders);
 
         assert_eq!(actual, expected);
     }
