@@ -184,7 +184,7 @@ impl Search for RepeatedAStar {
         to: Position,
         max_result_len: usize,
         cutoff_len: usize,
-    ) -> Vec<Order> {
+    ) -> Vec<SearchResult> {
         let mut visited: HashMap<Position, Visit> = HashMap::new();
 
         let mut max_cost = cutoff_len as u16;

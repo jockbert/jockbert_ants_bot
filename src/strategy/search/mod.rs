@@ -1,12 +1,81 @@
 pub mod bfs;
 pub mod manhattan_filter;
-pub mod repeated_a_star;
+//pub mod repeated_a_star;
 
 use crate::strategy::*;
 pub use bfs::*;
 use manhattan_filter::*;
-pub use repeated_a_star::*;
+//pub use repeated_a_star::*;
 use std::collections::HashSet;
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub struct SearchResult {
+    steps: Vec<Position>,
+}
+
+impl SearchResult {
+    pub fn start(pos: Position) -> SearchResult {
+        SearchResult { steps: vec![pos] }
+    }
+
+    pub fn last_step(&self) -> Position {
+        self.steps
+            .last()
+            .cloned()
+            .expect("All search results has at least on step")
+    }
+
+    pub fn order_length(&self) -> usize {
+        self.steps.len() - 1
+    }
+
+    pub fn first_order(
+        &self,
+        world_size: &Position,
+    ) -> Option<Order> {
+        let len = self.steps.len();
+        if len < 2 {
+            return Option::None;
+        }
+        let first = self.steps.get(0).expect("");
+        let second = self.steps.get(1).expect("");
+
+        let directions = vec![North, East, South, West];
+        for dir in directions {
+            let order = first.order(dir);
+            let target = order.target_pos(world_size);
+
+            if target == second.clone() {
+                return Some(order);
+            }
+        }
+        panic!(format!(
+            concat!(
+                "Inconsistent Search result. No order ",
+                "found for going from {:?} to {:?}, in ",
+                "world of size {:?}"
+            ),
+            first, second, world_size
+        ));
+    }
+
+    pub fn add_step(&self, step: Position) -> SearchResult {
+        let mut result = SearchResult {
+            steps: self.steps.clone(),
+        };
+
+        result.steps.push(step);
+        result
+    }
+
+    pub fn reverse(&self) -> SearchResult {
+        let mut result = SearchResult {
+            steps: self.steps.clone(),
+        };
+        result.steps.reverse();
+        result
+    }
+}
 
 /// Search from multiple origins to a singel target.
 pub trait Search {
@@ -20,13 +89,13 @@ pub trait Search {
         to: Position,
         max_result_len: usize,
         cutoff_len: usize,
-    ) -> Vec<Order>;
+    ) -> Vec<SearchResult>;
 }
 
 /// Create default search algorithms
 pub fn create_search() -> Box<dyn Search> {
     Box::new(ManhattanFilter {
-        inner: Box::new(RepeatedAStar {}),
+        inner: Box::new(BFS {}),
     })
 }
 
@@ -36,62 +105,80 @@ mod tests {
     use crate::utilities::*;
     use crate::world_step::{AvoidWaterFilter, BasicWorldStep};
 
-    #[test]
-    fn basics() {
-        let world = &AvoidWaterFilter::new_from_line_map(
-            "b-a--
-             -----",
-        );
+    fn assert_first_order_from_a_to_b(
+        map: &'static str,
+        expected_first_orders: &'static str,
+        max_result_len: usize,
+        cutoff_len: usize,
+    ) {
+        let froms = &positions_of('a', map);
+        let tos = &positions_of('b', map);
+        assert_eq!(1, tos.len(), "There can only be one 'b' in map.");
+        let to = tos.iter().next().expect("The single 'b'").clone();
+
+        let world = &AvoidWaterFilter::new_from_line_map(map);
 
         let actual = create_search().search(
             world,
-            &set![pos(0, 2)],
-            pos(0, 0),
+            froms,
+            to,
+            max_result_len,
+            cutoff_len,
+        );
+
+        let actual = actual
+            .iter()
+            .flat_map(|res| res.first_order(world.size()))
+            .collect::<Vec<Order>>();
+
+        let expected = orders(expected_first_orders)
+            .into_iter()
+            .collect::<Vec<Order>>();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn basics() {
+        assert_first_order_from_a_to_b(
+            "b-a--
+             -----",
+            "--<--
+             -----",
             10,
             10,
         );
-
-        assert_eq!(actual, vec![pos(0, 2).west()]);
     }
 
     #[test]
     fn obstacle_above() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "b%%
              -a%",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(1, 1)],
-            pos(0, 0),
+            "-%%
+             -<%",
             10,
-            5,
+            10,
         );
-        assert_eq!(actual, vec![pos(1, 1).west()]);
     }
 
     #[test]
     fn obstacle_on_side() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "b-
              %a
              %%",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(1, 1)],
-            pos(0, 0),
+            "--
+             %^
+             %%",
             10,
-            5,
+            10,
         );
-        assert_eq!(actual, vec![pos(1, 1).north()]);
     }
 
     #[test]
     fn nearest_alternative() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "---a---
              -------
              -------
@@ -101,87 +188,66 @@ mod tests {
              -------
              -------
              -------",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(0, 3), pos(5, 3), pos(4, 0), pos(4, 5)],
-            pos(4, 3),
+            "---v---
+             -------
+             -------
+             -------
+             >--b-<-
+             ---^---
+             -------
+             -------
+             -------",
             10,
             10,
-        );
-        assert_eq!(
-            actual,
-            vec![
-                pos(5, 3).north(),
-                pos(4, 5).west(),
-                pos(4, 0).east(),
-                pos(0, 3).south()
-            ]
         );
     }
 
     #[test]
     fn passing_boundaries() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "%-----
              a%----
              %-----
              ----%-
              ---%b%",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(1, 0)],
-            pos(4, 4),
+            "%-----
+             <%----
+             %-----
+             ----%-
+             ---%b%",
             10,
-            20,
+            10,
         );
-        assert_eq!(actual, vec![pos(1, 0).west()]);
     }
 
     #[test]
     fn locked_in() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "-%%-b--
              %aa%%%%
              -%%-a--
-             -------
-             -------
-             -------
-             -------
-             -------
-             -------
              -------",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(1, 1), pos(1, 2), pos(2, 4)],
-            pos(0, 4),
+            "-%%-b--
+             %--%%%%
+             -%%-v--
+             -------",
             10,
-            20,
+            10,
         );
-        assert_eq!(actual, vec![pos(2, 4).south()]);
     }
 
     #[test]
     fn no_solution() {
-        let world = &AvoidWaterFilter::new_from_line_map(
+        assert_first_order_from_a_to_b(
             "-%--b--
              %a%----
              -%-----",
-        );
-
-        let actual = create_search().search(
-            world,
-            &set![pos(1, 1)],
-            pos(0, 4),
+            "-%--b--
+             %-%----
+             -%-----",
             10,
-            20,
+            10,
         );
-        assert_eq!(actual, vec![]);
     }
 
     /// Using three sources 'a' with the same length to target 'b'.
@@ -190,10 +256,9 @@ mod tests {
     #[test]
     fn restricted_by_max_results() {
         let world = &AvoidWaterFilter::new_from_line_map(
-            "
-            %---a-
-            %b---a
-            %---a-",
+            "%---a-
+             %b---a
+             %---a-",
         );
 
         let actual = create_search().search(
@@ -208,20 +273,8 @@ mod tests {
 
     #[test]
     fn restricted_by_cutoff_length() {
-        let world =
-            &AvoidWaterFilter::new_from_line_map("b--a-------");
-        let from = set![pos(0, 3)];
-        let search = create_search();
-
-        let actual_with_cutoff_2 =
-            search.search(world, &from, pos(0, 0), 1, 2);
-
-        assert_eq!(actual_with_cutoff_2, vec![]);
-
-        let actual_with_cutoff_3 =
-            search.search(world, &from, pos(0, 0), 1, 3);
-
-        assert_eq!(actual_with_cutoff_3, vec![pos(0, 3).west()]);
+        assert_first_order_from_a_to_b("b--a-%", "b----%", 1, 2);
+        assert_first_order_from_a_to_b("b--a-%", "b--<-%", 1, 3);
     }
 
     /// Using a sizable world, in combination of searching for
@@ -234,68 +287,12 @@ mod tests {
     fn possible_solutions_cutoff() {
         let world = world("b-a--");
         let size = pos(32_000, 32_000);
-        let world_step = BasicWorldStep::new(world, size);
-        let actual = create_search().search(
-            &world_step,
-            &set![pos(0, 2)],
-            pos(0, 0),
-            2,
-            20,
-        );
-
+        let world_step = BasicWorldStep::new(world, size.clone());
+        let actual = create_search()
+            .search(&world_step, &set![pos(0, 2)], pos(0, 0), 2, 20)
+            .iter()
+            .flat_map(|result| result.first_order(&size))
+            .collect::<Vec<Order>>();
         assert_eq![actual, vec![pos(0, 2).west()]];
-    }
-
-    /// Using sizable world together with a lot of possible
-    /// from-ants. Should not generate performance problems.
-    #[test]
-    fn performance_test() {
-        let world = world("b-------------------a--");
-        let size = pos(32_000, 32_000);
-        let world_step = BasicWorldStep::new(world, size);
-
-        let mut ants: HashSet<Position> = set![];
-
-        for col in 200..400 {
-            for row in 0..20 {
-                ants.insert(pos(row, col));
-            }
-        }
-
-        // The nearest ants is last in the set, with a little randomness
-        ants.insert(pos(0, 103));
-        ants.insert(pos(0, 104));
-        ants.insert(pos(0, 105));
-        ants.insert(pos(0, 106));
-        ants.insert(pos(0, 107));
-        ants.insert(pos(0, 100));
-        ants.insert(pos(0, 101));
-        ants.insert(pos(0, 102));
-        ants.insert(pos(0, 108));
-        ants.insert(pos(0, 109));
-
-        let actual = create_search().search(
-            &world_step,
-            &ants,
-            pos(0, 0),
-            10,
-            500,
-        );
-
-        assert_eq![
-            actual,
-            vec![
-                pos(0, 100).west(),
-                pos(0, 101).west(),
-                pos(0, 102).west(),
-                pos(0, 103).west(),
-                pos(0, 104).west(),
-                pos(0, 105).west(),
-                pos(0, 106).west(),
-                pos(0, 107).west(),
-                pos(0, 108).west(),
-                pos(0, 109).west()
-            ]
-        ];
     }
 }

@@ -24,7 +24,7 @@ impl Search for ManhattanFilter {
         to: Position,
         max_result_len: usize,
         cutoff_len: usize,
-    ) -> Vec<Order> {
+    ) -> Vec<SearchResult> {
         let limit = cutoff_len as u16;
         let size = world.size();
         let filtered_from: HashSet<Position> = from
@@ -63,7 +63,7 @@ mod tests {
             to: Position,
             max_result_len: usize,
             cutoff_len: usize,
-        ) -> Vec<Order> {
+        ) -> Vec<SearchResult> {
             assert_eq!(self.expected_to, to);
             assert_eq!(&self.expected_from, from);
             assert_eq!(self.expected_max_result_len, max_result_len);

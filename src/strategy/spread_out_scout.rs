@@ -35,15 +35,13 @@ impl Strategy for SpreadOutScout {
                 30,
             );
 
-            if !search_orders.is_empty() {
-                let first_order = search_orders
-                    .get(0)
-                    .expect("First order should exist");
-
-                ants_available.remove(&first_order.pos);
-
-                // add first order to resulting orders
-                result_orders.push(first_order.clone());
+            if let Some(sr) = search_orders.get(0) {
+                if let Some(order) = sr.first_order(world_step.size())
+                {
+                    ants_available.remove(&order.pos);
+                    // add first order to resulting orders
+                    result_orders.push(order.clone());
+                }
             }
         }
         result_orders
