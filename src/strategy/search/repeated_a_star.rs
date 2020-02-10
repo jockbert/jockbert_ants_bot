@@ -10,93 +10,65 @@ use std::collections::HashSet;
 /// aiming for the same 'to' location.
 pub struct RepeatedAStar {}
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
-struct Visit {
-    pos: Position,
-    astern_cost: u16,
-    astern_dir: Option<Direction>,
-}
-
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct TargetedVisit {
-    visit: Visit,
-    target: Position,
-    world_size: Position,
+struct Informed {
+    sr: SearchResult,
     forward_heuristic_cost: u16,
 }
 
-impl Visit {
-    fn start(pos: &Position) -> Visit {
-        Visit {
-            pos: pos.clone(),
-            astern_cost: 0,
-            astern_dir: None,
-        }
-    }
-    fn astern_order(&self) -> Option<Order> {
-        self.astern_dir.map(|dir| self.pos.order(dir))
-    }
-
-    fn with_target(
-        &self,
-        target: &Position,
-        world_size: &Position,
-    ) -> TargetedVisit {
-        let heuristic_cost =
-            manhattan(&(self.pos), target, world_size);
-        TargetedVisit {
-            visit: self.clone(),
-            target: target.clone(),
-            world_size: world_size.clone(),
-            forward_heuristic_cost: heuristic_cost,
-        }
-    }
-}
-
-impl Ord for Visit {
-    fn cmp(&self, other: &Visit) -> Ordering {
+impl Ord for SearchResult {
+    fn cmp(&self, other: &SearchResult) -> Ordering {
         // Notice the flipped ordering on astern_costs.
         // In case of a tie we compare other fields - this step is necessary
         // to make implementations of `PartialEq` and `Ord` consistent.
         other
-            .astern_cost
-            .cmp(&self.astern_cost)
-            .then_with(|| self.pos.cmp(&other.pos))
-            .then_with(|| self.astern_dir.cmp(&other.astern_dir))
+            .order_length()
+            .cmp(&self.order_length())
+            .then_with(|| (&other.steps).cmp(&self.steps))
     }
 }
 
-impl PartialOrd for Visit {
-    fn partial_cmp(&self, other: &Visit) -> Option<Ordering> {
+impl PartialOrd for SearchResult {
+    fn partial_cmp(&self, other: &SearchResult) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl TargetedVisit {
-    fn total_cost(&self) -> u16 {
-        self.visit.astern_cost + self.forward_heuristic_cost
+impl Informed {
+    fn new(
+        result: SearchResult,
+        target: &Position,
+        world_size: &Position,
+    ) -> Informed {
+        let heuristic_cost =
+            manhattan(&(result.last_step()), target, world_size);
+        Informed {
+            sr: result,
+            forward_heuristic_cost: heuristic_cost,
+        }
     }
-    fn go_forward(&self, dir: Direction) -> TargetedVisit {
-        let order = self.visit.pos.order(dir);
-        let new_pos = order.target_pos(&self.world_size);
-        let fwd_cost =
-            manhattan(&new_pos, &self.target, &self.world_size);
+    fn total_cost(&self) -> u16 {
+        self.sr.order_length() as u16 + self.forward_heuristic_cost
+    }
+    fn go_forward(
+        &self,
+        dir: Direction,
+        target: &Position,
+        world_size: &Position,
+    ) -> Informed {
+        let order = self.sr.last_step().order(dir);
+        let new_pos = order.target_pos(world_size);
+        let fwd_cost = manhattan(&new_pos, target, world_size);
 
-        TargetedVisit {
-            visit: Visit {
-                pos: new_pos,
-                astern_cost: self.visit.astern_cost + 1,
-                astern_dir: Some(dir.reverse()),
-            },
-            target: self.target.clone(),
-            world_size: self.world_size.clone(),
+        Informed {
+            sr: self.sr.add_step(new_pos),
             forward_heuristic_cost: fwd_cost,
         }
     }
 }
 
-impl Ord for TargetedVisit {
-    fn cmp(&self, other: &TargetedVisit) -> Ordering {
+impl Ord for Informed {
+    fn cmp(&self, other: &Informed) -> Ordering {
         // Notice the flipped ordering on costs.
         // In case of a tie we compare other fields - this step is necessary
         // to make implementations of `PartialEq` and `Ord` consistent.
@@ -111,14 +83,12 @@ impl Ord for TargetedVisit {
                     .forward_heuristic_cost
                     .cmp(&self.forward_heuristic_cost)
             })
-            .then_with(|| self.target.cmp(&other.target))
-            .then_with(|| self.world_size.cmp(&other.world_size))
-            .then_with(|| self.visit.cmp(&other.visit))
+            .then_with(|| self.sr.cmp(&other.sr))
     }
 }
 
-impl PartialOrd for TargetedVisit {
-    fn partial_cmp(&self, other: &TargetedVisit) -> Option<Ordering> {
+impl PartialOrd for Informed {
+    fn partial_cmp(&self, other: &Informed) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -127,43 +97,43 @@ impl RepeatedAStar {
     fn single_search(
         &self,
         world: &dyn WorldStep,
-        to: Position,
         from: Position,
+        to: Position,
         cutoff_len: usize,
-        visited: &mut HashMap<Position, Visit>,
-    ) -> Option<Visit> {
+        visited: &mut HashMap<Position, SearchResult>,
+    ) -> Option<SearchResult> {
         let size = world.size();
-        let mut queue: BinaryHeap<TargetedVisit> = BinaryHeap::new();
+        let mut queue: BinaryHeap<Informed> = BinaryHeap::new();
 
-        // searching backwards from "to" to "from".
-        // Last transition adjacent to "from", is first player order to conduct.
-        queue.push(Visit::start(&to).with_target(&from, &size));
+        queue.push(Informed::new(
+            SearchResult::start(from),
+            &to,
+            &size,
+        ));
 
-        for (_pos, visit) in visited.iter() {
-            queue.push(visit.with_target(&from, &size));
+        for (_pos, sr) in visited.iter() {
+            queue.push(Informed::new(sr.clone(), &to, &size));
         }
 
         while !queue.is_empty() {
-            let targeted_visit =
+            let informed =
                 queue.pop().expect("queue should return something");
 
-            let visit = targeted_visit.visit.clone();
-            if visit.pos == from {
-                return Some(visit);
+            let sr = informed.sr.clone();
+            if sr.last_step() == to {
+                return Some(sr);
             }
 
             world
-                .available_directions(&visit.pos)
+                .available_directions(&sr.last_step())
                 .iter()
-                .map(|&dir| targeted_visit.go_forward(dir))
+                .map(|&dir| informed.go_forward(dir, &to, &size))
                 .for_each(|targeted| {
-                    if !visited.contains_key(&targeted.visit.pos)
+                    let step = targeted.sr.last_step();
+                    if !visited.contains_key(&step)
                         && targeted.total_cost() <= cutoff_len as u16
                     {
-                        visited.insert(
-                            targeted.visit.pos.clone(),
-                            targeted.visit.clone(),
-                        );
+                        visited.insert(step, targeted.sr.clone());
                         queue.push(targeted);
                     }
                 });
@@ -185,15 +155,22 @@ impl Search for RepeatedAStar {
         max_result_len: usize,
         cutoff_len: usize,
     ) -> Vec<SearchResult> {
-        let mut visited: HashMap<Position, Visit> = HashMap::new();
+        let mut visited: HashMap<Position, SearchResult> =
+            HashMap::new();
 
         let mut max_cost = cutoff_len as u16;
 
-        let mut results: BinaryHeap<Visit> = BinaryHeap::new();
+        let mut results: BinaryHeap<SearchResult> = BinaryHeap::new();
 
         let mut sorted_froms: Vec<_> = from
             .iter()
-            .map(|f| Visit::start(&f).with_target(&to, &world.size()))
+            .map(|f| {
+                Informed::new(
+                    SearchResult::start(f.clone()),
+                    &to,
+                    &world.size(),
+                )
+            })
             .collect();
         sorted_froms.sort_unstable();
         sorted_froms.reverse();
@@ -203,14 +180,14 @@ impl Search for RepeatedAStar {
                 continue 'foo;
             }
 
-            if let Some(v) = self.single_search(
+            if let Some(search_result) = self.single_search(
                 world,
                 to.clone(),
-                f.visit.pos.clone(),
+                f.sr.last_step(),
                 max_cost as usize,
                 &mut visited,
             ) {
-                results.push(v);
+                results.push(search_result.reverse());
             }
 
             if results.len() >= max_result_len {
@@ -222,7 +199,7 @@ impl Search for RepeatedAStar {
 
                 if let Some(max_result_cost) = results
                     .iter()
-                    .map(|visit| visit.astern_cost)
+                    .map(|sr| sr.order_length() as u16)
                     .max()
                 {
                     max_cost =
@@ -231,11 +208,8 @@ impl Search for RepeatedAStar {
             }
         }
 
-        let mut x = results
-            .into_sorted_vec()
-            .iter()
-            .flat_map(|visit| visit.astern_order())
-            .collect::<Vec<_>>();
+        // We want the shortest results first
+        let mut x = results.into_sorted_vec();
         x.reverse();
         x.truncate(max_result_len);
         x
@@ -251,24 +225,24 @@ mod tests {
     fn single_from_search_default() {
         let world = &AvoidWaterFilter::new_from_line_map(
             "-----
-             -a-b-
+             -b-a-
              -----",
         );
         let search = RepeatedAStar {};
 
         let actual = search.single_search(
             world,
-            pos(1, 1),
             pos(1, 3),
+            pos(1, 1),
             100,
             &mut HashMap::new(),
         );
 
-        let expected = Some(Visit {
-            pos: pos(1, 3),
-            astern_cost: 2,
-            astern_dir: Some(Direction::West),
-        });
+        let expected = Some(
+            SearchResult::start(pos(1, 3))
+                .add_step(pos(1, 2))
+                .add_step(pos(1, 1)),
+        );
 
         assert_eq!(actual, expected);
     }

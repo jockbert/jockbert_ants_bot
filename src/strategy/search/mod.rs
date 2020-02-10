@@ -1,11 +1,11 @@
 pub mod bfs;
 pub mod manhattan_filter;
-//pub mod repeated_a_star;
+pub mod repeated_a_star;
 
 use crate::strategy::*;
 pub use bfs::*;
 use manhattan_filter::*;
-//pub use repeated_a_star::*;
+pub use repeated_a_star::*;
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -95,7 +95,7 @@ pub trait Search {
 /// Create default search algorithms
 pub fn create_search() -> Box<dyn Search> {
     Box::new(ManhattanFilter {
-        inner: Box::new(BFS {}),
+        inner: Box::new(RepeatedAStar {}),
     })
 }
 
