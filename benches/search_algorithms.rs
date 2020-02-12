@@ -16,7 +16,7 @@ use std::collections::HashSet;
 fn search(search: Box<dyn Search>) {
     let world = world("b-------------------a--");
     let size = pos(32_000, 32_000);
-    let world_step = BasicWorldStep::new(world, size);
+    let world_step = BasicWorldStep::new(world, size.clone());
 
     let mut ants: HashSet<Position> = set![];
 
@@ -38,8 +38,12 @@ fn search(search: Box<dyn Search>) {
     ants.insert(pos(0, 108));
     ants.insert(pos(0, 109));
 
-    let actual =
-        search.search(&world_step, &ants, pos(0, 0), 10, 500);
+    let actual = search
+        .search(&world_step, &ants, pos(0, 0), 10, 500)
+        .iter()
+        .flat_map(|sr| sr.first_order(&size))
+        .collect::<Vec<Order>>();
+
     assert_eq![
         actual,
         vec![
