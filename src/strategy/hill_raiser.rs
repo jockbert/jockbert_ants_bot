@@ -1,4 +1,3 @@
-use crate::strategy::search::*;
 use crate::strategy::*;
 use crate::world_step::*;
 
@@ -12,27 +11,13 @@ impl Strategy for HillRaiser {
         world_step: &dyn WorldStep,
         ants_available: &mut HashSet<Position>,
     ) -> Orders {
-        let mut result_orders: Vec<Order> = Vec::new();
-
-        for hill in world_step.get_positions(Tile::EnemyHill) {
-            let search_orders = create_search().search(
-                world_step,
-                ants_available,
-                hill,
-                5,
-                20,
-            );
-
-            if let Some(sr) = search_orders.get(0) {
-                if let Some(order) = sr.first_order(world_step.size())
-                {
-                    ants_available.remove(&order.pos);
-                    // add first order to resulting orders
-                    result_orders.push(order.clone());
-                }
-            }
-        }
-        result_orders
+        best_orders_to_target(
+            &world_step.get_positions(Tile::EnemyHill),
+            world_step,
+            ants_available,
+            5,
+            20,
+        )
     }
 }
 
