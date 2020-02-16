@@ -1,7 +1,6 @@
 use crate::strategy::Strategy;
 use crate::world_step::WorldStep;
 use ants_ai_challenge_api::Direction;
-use ants_ai_challenge_api::Order;
 use ants_ai_challenge_api::Orders;
 use ants_ai_challenge_api::Position;
 use rand::Rng;
@@ -22,15 +21,12 @@ impl Strategy for RandomWalk {
         world_step: &dyn WorldStep,
         ants: &mut HashSet<Position>,
     ) -> Orders {
-        let orders: Vec<Order> = ants
-            .iter()
+        ants.iter()
             .map(|ant| {
                 ant.order(random_direction(
                     world_step.available_directions(ant).as_ref(),
                 ))
             })
-            .collect();
-
-        orders
+            .collect()
     }
 }
