@@ -10,7 +10,8 @@ Bot in the game [Ants AI Challenge](http://ants.aichallenge.org/).
 
 
 ## Future improvements roadmap
-1. Fix food planning bug: Take the nearest food instead of the one first in the food-list.
+1. Fix new "ordered into water" bug
+1. Improve multisearch so several ants can go to same target - useful for raising hills.
 1. Remember food/hills/opponents etc. in fog of war.
 1. Reuse old search paths if no new obstacle are in the way.
 1. Implement ant-on-ant-battle strategy.
@@ -18,6 +19,9 @@ Bot in the game [Ants AI Challenge](http://ants.aichallenge.org/).
 1. Extract to run strategies on other thread.
 1. Parallelize the search effort - use multiple threads.
 
+## Changes up to 2020-02-16
+1. Fix food planning bug: Should prioritize neares food instead of the one first in the food-list. - Solved by implementing multisearch, a heuristic to priotitize among several search results.
+1. Extract comonalities from different stratigies to a "strategy tool" - reduced lines of code.
 
 ## Changes up to 2019-11-17
 * "Multiple A*" in search when finding food. For single search start position, reuses partial results for next search target.
