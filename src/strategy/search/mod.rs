@@ -25,6 +25,13 @@ impl SearchResult {
             .expect("All search results has at least on step")
     }
 
+    pub fn first_step(&self) -> Position {
+        self.steps
+            .first()
+            .cloned()
+            .expect("All search results has at least on step")
+    }
+
     pub fn order_length(&self) -> usize {
         self.steps.len() - 1
     }
