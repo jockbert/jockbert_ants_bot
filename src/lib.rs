@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 #[macro_use]
-//#[cfg(test)]
 pub mod utilities;
 pub mod strategy;
 pub mod world_step;
@@ -15,6 +14,15 @@ use crate::world_step::*;
 pub struct FooAgent {
     params: GameParameters,
     accumulated_water: HashSet<Position>,
+}
+
+fn eprint(step: &impl WorldStep) {
+    let ten_millis = std::time::Duration::from_millis(10);
+    std::thread::sleep(ten_millis);
+    eprintln!("");
+    eprint!("{}", step.format("    ", false));
+    eprintln!("");
+    std::thread::sleep(ten_millis);
 }
 
 impl Agent for FooAgent {
@@ -60,6 +68,8 @@ impl Agent for FooAgent {
         for order in orders {
             water_filter.add_order(order.clone());
         }
+
+        eprint(&water_filter);
 
         water_filter.get_orders()
     }

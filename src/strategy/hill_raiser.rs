@@ -12,7 +12,7 @@ impl Strategy for HillRaiser {
         ants_available: &mut HashSet<Position>,
     ) -> Orders {
         best_orders_to_target(
-            &world_step.get_positions(Tile::EnemyHill),
+            &world_step.get_positions(Tile::Hill(1)),
             world_step,
             ants_available,
             5,
@@ -71,7 +71,7 @@ mod tests {
     fn orders_limited_by_hills_so_use_nearest_ant() {
         let world_step = &mut BasicWorldStep::new_from_line_map(
             "----------
-             -a---2--a-
+             -a---1--a-
              ----------",
         );
         let strategy = &HillRaiser {};

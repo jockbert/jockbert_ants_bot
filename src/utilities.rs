@@ -216,7 +216,7 @@ fn chars_with_pos(map: &str) -> Vec<(char, Position)> {
 
 /// Trim away left and right padding of multi line string
 /// and removes empty lines.
-fn trim_lines(multi_lines: &str) -> String {
+pub fn trim_lines(multi_lines: &str) -> String {
     multi_lines
         .lines()
         .map(str::trim)
