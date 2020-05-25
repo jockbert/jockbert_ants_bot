@@ -228,6 +228,7 @@ pub fn trim_lines(multi_lines: &str) -> String {
 struct Indexer {
     index: usize,
 }
+
 impl Indexer {
     fn new() -> Indexer {
         Indexer { index: 0 }
@@ -242,7 +243,7 @@ impl Iterator for Indexer {
     }
 }
 
-/// Assert that dut.get_orders equals expected orders.
+/// Assert that cut.get_orders equals expected orders.
 #[cfg(test)]
 macro_rules! assert_orders {
         ($cut:expr) => {
@@ -258,7 +259,16 @@ macro_rules! assert_orders {
         };
     }
 
-/// Assert that dut.available_directions equals
+/// Assert that cut.available_directions is empty.
+#[cfg(test)]
+macro_rules! assert_no_dirs {
+        ($cut:expr, $position:expr) => {
+            let expected_dirs = Vec::new();
+            assert_eq!($cut.available_directions($position), expected_dirs);
+        };
+    }
+
+/// Assert that cut.available_directions equals
 /// expected directions.
 #[cfg(test)]
 macro_rules! assert_dirs {

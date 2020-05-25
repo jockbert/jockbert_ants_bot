@@ -36,6 +36,10 @@ impl WorldStep for AvoidWaterFilter {
     }
 
     fn available_directions(&self, p: &Position) -> Vec<Direction> {
+        if self.tile(p) == Tile::Water {
+            return Vec::new();
+        }
+
         self.delegate
             .available_directions(p)
             .iter()
@@ -81,5 +85,17 @@ mod tests {
 
         // Only east is available
         assert_dirs!(filter, &pos(1, 1), East);
+    }
+
+    #[test]
+    fn there_is_no_direction_from_water() {
+        let filter = AvoidWaterFilter::new_from_line_map(
+            "---
+             -%-
+             ---",
+        );
+
+        // No direction is available since standing on water
+        assert_no_dirs!(filter, &pos(1, 1));
     }
 }
