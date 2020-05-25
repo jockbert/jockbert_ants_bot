@@ -159,10 +159,8 @@ mod tests {
     #[test]
     fn basics() {
         assert_first_order_from_a_to_b(
-            "b-a--
-             -----",
-            "--<--
-             -----",
+            "b-a--",
+            "--<--",
             10,
             10,
         );
