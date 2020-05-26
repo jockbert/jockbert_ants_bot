@@ -4,25 +4,28 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-pub struct AntCrashFilter {
-    delegate: Box<dyn WorldStep>,
+pub struct AntCrashFilter<S: WorldStep> {
+    delegate: S,
 }
 
-impl AntCrashFilter {
-    pub fn new(delegate: Box<dyn WorldStep>) -> AntCrashFilter {
-        AntCrashFilter { delegate }
-    }
-
+impl AntCrashFilter<BasicWorldStep> {
     #[cfg(test)]
-    pub fn new_from_line_map(map: &'static str) -> AntCrashFilter {
+    pub fn new_from_line_map(map: &'static str) -> AntCrashFilter<BasicWorldStep> {
         let inner = BasicWorldStep::new_from_line_map(map);
         AntCrashFilter {
-            delegate: Box::new(inner),
+            delegate: inner,
         }
+    }
+
+}
+
+impl<S:WorldStep> AntCrashFilter<S> {
+    pub fn new(delegate: S) -> AntCrashFilter<S> {
+        AntCrashFilter { delegate }
     }
 }
 
-impl WorldStep for AntCrashFilter {
+impl<S:WorldStep> WorldStep for AntCrashFilter<S> {
     fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.delegate.add_order(order);
         self

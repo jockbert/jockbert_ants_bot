@@ -1,23 +1,38 @@
 use crate::world_step::*;
 use ants_ai_challenge_api::*;
 
-pub struct AvoidWaterFilter {
-    delegate: Box<dyn WorldStep>,
+pub struct AvoidWaterFilter<T>
+where
+    T: WorldStep,
+{
+    delegate: T,
 }
 
-impl AvoidWaterFilter {
-    pub fn new(delegate: Box<dyn WorldStep>) -> AvoidWaterFilter {
-        AvoidWaterFilter { delegate }
+impl<T: WorldStep> AvoidWaterFilter<T>
+where
+    T: WorldStep,
+{
+    pub fn new(delegate: T) -> AvoidWaterFilter<T> {
+        AvoidWaterFilter::<T> { delegate }
     }
+
+}
+impl AvoidWaterFilter<BasicWorldStep> {
+
 
     #[cfg(test)]
-    pub fn new_from_line_map(map: &'static str) -> AvoidWaterFilter {
+    pub fn new_from_line_map(
+        map: &'static str,
+    ) -> AvoidWaterFilter<BasicWorldStep> {
         let inner = BasicWorldStep::new_from_line_map(map);
-        AvoidWaterFilter::new(Box::new(inner))
+        AvoidWaterFilter::new(inner)
     }
 }
 
-impl WorldStep for AvoidWaterFilter {
+impl<T> WorldStep for AvoidWaterFilter<T>
+where
+    T: WorldStep,
+{
     fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.delegate.add_order(order);
         self

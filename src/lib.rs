@@ -56,22 +56,21 @@ impl Agent for FooAgent {
         let size =
             pos(self.params.rows as u16, self.params.cols as u16);
 
-        let world_step = BasicWorldStep::new(world, size);
-        let crash_filter = AntCrashFilter::new(Box::new(world_step));
-        let mut water_filter =
-            AvoidWaterFilter::new(Box::new(crash_filter));
+        let mut world_step = AvoidWaterFilter::new(
+            AntCrashFilter::new(BasicWorldStep::new(world, size)),
+        );
 
         let strategy = &CompositeStrategy::new_with_default();
 
-        let orders = strategy.apply(&water_filter, &mut my_ants);
+        let orders = strategy.apply(&world_step, &mut my_ants);
 
         for order in orders {
-            water_filter.add_order(order.clone());
+            world_step.add_order(order.clone());
         }
 
-        eprint(&water_filter);
+        eprint(&world_step);
 
-        water_filter.get_orders()
+        world_step.get_orders()
     }
 }
 
