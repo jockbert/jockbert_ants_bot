@@ -8,7 +8,6 @@ Bot in the game [Ants AI Challenge](http://ants.aichallenge.org/).
 
 
 ## Future improvements roadmap
-1. Fix new "ordered into water" bug
 1. Implement ant-on-ant-battle strategy.
 1. Fix shortfall introduced to HillRaiser strategy, only rasing hills of player 2.
 1. Improve multisearch so several ants can go to same target - useful for raising hills.
@@ -17,6 +16,9 @@ Bot in the game [Ants AI Challenge](http://ants.aichallenge.org/).
 1. Iterative search length cutoff, first iteration using Manhattan. End before timeout.
 1. Extract to run strategies on other thread.
 1. Parallelize the search effort - use multiple threads.
+
+## Changes up to 2020-05-26
+1. Solve "ordered into water" bug
 
 ## Changes up to 2020-04-06
 1. Add ASCII-art serialization of agent world step state. Serialization of state is useful as start state for hunting bugs via debugging and test cases.
