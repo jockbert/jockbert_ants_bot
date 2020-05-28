@@ -1,7 +1,7 @@
 use crate::strategy::search::*;
 
-pub struct ManhattanFilter {
-    pub inner: Box<dyn Search>,
+pub struct ManhattanFilter<S:Search> {
+    pub inner: S,
 }
 
 pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
@@ -16,7 +16,7 @@ pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
     (row_distance + col_distance) as u16
 }
 
-impl Search for ManhattanFilter {
+impl<S:Search> Search for ManhattanFilter<S> {
     fn search(
         &self,
         world: &dyn WorldStep,
@@ -90,52 +90,52 @@ mod tests {
         let to = pos(0, 0);
 
         ManhattanFilter {
-            inner: Box::new(MockedInner {
+            inner: MockedInner {
                 expected_to: to.clone(),
                 expected_from: set![],
                 expected_max_result_len: 10,
                 expected_cutoff_len: 0,
-            }),
+            },
         }
         .search(world, &original_from, to.clone(), 10, 0);
 
         ManhattanFilter {
-            inner: Box::new(MockedInner {
+            inner: MockedInner {
                 expected_to: to.clone(),
                 expected_from: set![pos(3, 0)],
                 expected_max_result_len: 10,
                 expected_cutoff_len: 1,
-            }),
+            },
         }
         .search(world, &original_from, to.clone(), 10, 1);
 
         ManhattanFilter {
-            inner: Box::new(MockedInner {
+            inner: MockedInner {
                 expected_to: to.clone(),
                 expected_from: set![pos(1, 7), pos(3, 0)],
                 expected_max_result_len: 10,
                 expected_cutoff_len: 2,
-            }),
+            },
         }
         .search(world, &original_from, to.clone(), 10, 2);
 
         ManhattanFilter {
-            inner: Box::new(MockedInner {
+            inner: MockedInner {
                 expected_to: to.clone(),
                 expected_from: set![pos(0, 3), pos(1, 7), pos(3, 0)],
                 expected_max_result_len: 13,
                 expected_cutoff_len: 3,
-            }),
+            },
         }
         .search(world, &original_from, to.clone(), 13, 3);
 
         ManhattanFilter {
-            inner: Box::new(MockedInner {
+            inner: MockedInner {
                 expected_to: to.clone(),
                 expected_from: original_from.clone(),
                 expected_max_result_len: 11,
                 expected_cutoff_len: 4,
-            }),
+            },
         }
         .search(world, &original_from, to, 11, 4);
     }

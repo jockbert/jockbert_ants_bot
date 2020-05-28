@@ -102,7 +102,7 @@ pub trait Search {
 /// Create default search algorithms
 pub fn create_search() -> Box<dyn Search> {
     Box::new(ManhattanFilter {
-        inner: Box::new(RepeatedAStar {}),
+        inner: RepeatedAStar {},
     })
 }
 
