@@ -1,6 +1,6 @@
 use crate::strategy::search::*;
 
-pub struct ManhattanFilter<S:Search> {
+pub struct ManhattanFilter<S: Search> {
     pub inner: S,
 }
 
@@ -16,7 +16,7 @@ pub fn manhattan(a: &Position, b: &Position, size: &Position) -> u16 {
     (row_distance + col_distance) as u16
 }
 
-impl<S:Search> Search for ManhattanFilter<S> {
+impl<S: Search> Search for ManhattanFilter<S> {
     fn search(
         &self,
         world: &dyn WorldStep,

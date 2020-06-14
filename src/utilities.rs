@@ -262,11 +262,14 @@ macro_rules! assert_orders {
 /// Assert that cut.available_directions is empty.
 #[cfg(test)]
 macro_rules! assert_no_dirs {
-        ($cut:expr, $position:expr) => {
-            let expected_dirs = Vec::new();
-            assert_eq!($cut.available_directions($position), expected_dirs);
-        };
-    }
+    ($cut:expr, $position:expr) => {
+        let expected_dirs = Vec::new();
+        assert_eq!(
+            $cut.available_directions($position),
+            expected_dirs
+        );
+    };
+}
 
 /// Assert that cut.available_directions equals
 /// expected directions.

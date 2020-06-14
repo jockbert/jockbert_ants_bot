@@ -4,6 +4,7 @@ use ants_ai_challenge_api::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
+pub mod combat;
 pub mod composite_strategy;
 pub mod gather_food;
 pub mod hill_raiser;

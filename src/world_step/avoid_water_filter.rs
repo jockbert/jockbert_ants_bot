@@ -15,11 +15,8 @@ where
     pub fn new(delegate: T) -> AvoidWaterFilter<T> {
         AvoidWaterFilter::<T> { delegate }
     }
-
 }
 impl AvoidWaterFilter<BasicWorldStep> {
-
-
     #[cfg(test)]
     pub fn new_from_line_map(
         map: &'static str,

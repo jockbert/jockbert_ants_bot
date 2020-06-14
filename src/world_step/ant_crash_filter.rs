@@ -10,22 +10,21 @@ pub struct AntCrashFilter<S: WorldStep> {
 
 impl AntCrashFilter<BasicWorldStep> {
     #[cfg(test)]
-    pub fn new_from_line_map(map: &'static str) -> AntCrashFilter<BasicWorldStep> {
+    pub fn new_from_line_map(
+        map: &'static str,
+    ) -> AntCrashFilter<BasicWorldStep> {
         let inner = BasicWorldStep::new_from_line_map(map);
-        AntCrashFilter {
-            delegate: inner,
-        }
+        AntCrashFilter { delegate: inner }
     }
-
 }
 
-impl<S:WorldStep> AntCrashFilter<S> {
+impl<S: WorldStep> AntCrashFilter<S> {
     pub fn new(delegate: S) -> AntCrashFilter<S> {
         AntCrashFilter { delegate }
     }
 }
 
-impl<S:WorldStep> WorldStep for AntCrashFilter<S> {
+impl<S: WorldStep> WorldStep for AntCrashFilter<S> {
     fn add_order(&mut self, order: Order) -> &mut dyn WorldStep {
         self.delegate.add_order(order);
         self
