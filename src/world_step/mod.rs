@@ -48,7 +48,7 @@ pub trait WorldStep {
         let orders = self.get_orders();
         let mut order_map = HashMap::<Position, Direction>::new();
         for order in orders {
-            order_map.insert(order.pos.clone(), order.dir.clone());
+            order_map.insert(order.pos.clone(), order.dir);
         }
 
         let mut result = String::from("");
@@ -72,6 +72,7 @@ pub trait WorldStep {
                         Some(Direction::South) => 'v',
                         Some(Direction::East) => '>',
                         Some(Direction::West) => '<',
+                        Some(Direction::NoDirection) => 'P',
                         None => ' ',
                     };
                     result += &annotation.to_string();
