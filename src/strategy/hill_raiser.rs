@@ -9,7 +9,7 @@ impl Strategy for HillRaiser {
     fn apply(
         &self,
         world_step: &dyn WorldStep,
-        ants_available: &mut HashSet<Position>,
+        ants_available: &HashSet<Position>,
     ) -> Orders {
         best_orders_to_target(
             &world_step.get_positions(Tile::Hill(1)),
@@ -35,9 +35,9 @@ mod tests {
         let strategy = &HillRaiser {};
 
         let ant = pos(1, 3);
-        let mut ants = set![ant.clone()];
+        let ants = set![ant.clone()];
 
-        let actual_orders = strategy.apply(world_step, &mut ants);
+        let actual_orders = strategy.apply(world_step, &ants);
 
         assert_eq![ants, set![ant]];
 
@@ -55,11 +55,9 @@ mod tests {
 
         let left_ant = pos(1, 3);
         let right_ant = pos(1, 6);
-        let mut ants = set![left_ant.clone(), right_ant.clone()];
+        let ants = set![left_ant.clone(), right_ant.clone()];
 
-        let actual_orders = strategy.apply(world_step, &mut ants);
-
-        assert_eq![ants, set![]];
+        let actual_orders = strategy.apply(world_step, &ants);
 
         assert_eq![
             actual_orders,
@@ -78,11 +76,9 @@ mod tests {
 
         let left_ant = pos(1, 1);
         let right_ant = pos(1, 8);
-        let mut ants = set![left_ant.clone(), right_ant.clone()];
+        let ants = set![left_ant, right_ant.clone()];
 
-        let actual_orders = strategy.apply(world_step, &mut ants);
-
-        assert_eq![ants, set![left_ant]];
+        let actual_orders = strategy.apply(world_step, &ants);
         assert_eq![actual_orders, vec![right_ant.west()]];
     }
 
@@ -99,11 +95,9 @@ mod tests {
         let strategy = &HillRaiser {};
 
         let ant = pos(2, 4);
-        let mut ants = set![ant.clone()];
+        let ants = set![ant.clone()];
 
-        let actual_orders = strategy.apply(world_step, &mut ants);
-
-        assert_eq![ants, set![]];
+        let actual_orders = strategy.apply(world_step, &ants);
         assert_eq![actual_orders, vec![ant.north()]];
     }
 }

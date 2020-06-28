@@ -23,14 +23,14 @@ pub trait Strategy {
     fn apply(
         &self,
         world_step: &dyn WorldStep,
-        ants_available: &mut HashSet<Position>,
+        ants_available: &HashSet<Position>,
     ) -> Orders;
 }
 
 fn best_orders_to_target(
     targets: &[Position],
     world_step: &dyn WorldStep,
-    ants_available: &mut HashSet<Position>,
+    ants_available: &HashSet<Position>,
     max_result_len: usize,
     cutoff_len: usize,
 ) -> Orders {
@@ -43,10 +43,6 @@ fn best_orders_to_target(
         max_result_len,
         cutoff_len,
     );
-
-    for result in &results {
-        ants_available.remove(&result.first_step());
-    }
 
     results
         .iter()

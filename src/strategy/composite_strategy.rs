@@ -24,13 +24,19 @@ impl Strategy for CompositeStrategy {
     fn apply(
         &self,
         world_step: &dyn WorldStep,
-        ants_available: &mut HashSet<Position>,
+        ants_available: &HashSet<Position>,
     ) -> Orders {
         let mut result_orders: Vec<Order> = Vec::new();
+        let mut mut_ants_available: HashSet<Position> =
+            ants_available.iter().cloned().collect();
 
         for strategy in self.strategies.iter() {
-            let orders = strategy.apply(world_step, ants_available);
+            let orders =
+                strategy.apply(world_step, &mut_ants_available);
 
+            for order in &orders {
+                mut_ants_available.remove(&order.pos);
+            }
             for o in orders {
                 result_orders.push(o);
             }
@@ -55,13 +61,9 @@ mod tests {
 
         let left_ant = pos(1, 3);
         let right_ant = pos(1, 6);
-        let mut ants: HashSet<Position> =
-            set![left_ant.clone(), right_ant.clone()];
+        let ants = set![left_ant.clone(), right_ant.clone()];
 
-        let actual_orders = strategy.apply(world_step, &mut ants);
-
-        assert_eq![ants, set![]];
-
+        let actual_orders = strategy.apply(world_step, &ants);
         assert_eq![
             actual_orders,
             vec![left_ant.west(), right_ant.east()]

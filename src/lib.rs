@@ -49,7 +49,7 @@ impl Agent for FooAgent {
             ),
         };
 
-        let mut my_ants: HashSet<Position> = HashSet::from_iter(
+        let my_ants: HashSet<Position> = HashSet::from_iter(
             world.live_ants_for_player(0).iter().cloned(),
         );
 
@@ -62,7 +62,7 @@ impl Agent for FooAgent {
 
         let strategy = &CompositeStrategy::new_with_default();
 
-        let orders = strategy.apply(&world_step, &mut my_ants);
+        let orders = strategy.apply(&world_step, &my_ants);
 
         for order in orders {
             world_step.add_order(order.clone());

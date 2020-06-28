@@ -24,7 +24,7 @@ impl Strategy for RandomWalk {
     fn apply(
         &self,
         world_step: &dyn WorldStep,
-        ants: &mut HashSet<Position>,
+        ants: &HashSet<Position>,
     ) -> Orders {
         ants.iter()
             .flat_map(|ant| {
@@ -52,10 +52,10 @@ mod tests {
         );
 
         let strategy = RandomWalk {};
-        let mut ants = HashSet::from_iter(
+        let ants = HashSet::from_iter(
             world_step.all_my_ants().iter().cloned(),
         );
 
-        strategy.apply(&world_step, &mut ants);
+        strategy.apply(&world_step, &ants);
     }
 }

@@ -20,7 +20,7 @@ impl Strategy for SpreadOutScout {
     fn apply(
         &self,
         world_step: &dyn WorldStep,
-        ants_available: &mut HashSet<Position>,
+        ants_available: &HashSet<Position>,
     ) -> Orders {
         best_orders_to_target(
             &grid_points(world_step.size(), &pos(7, 7)),
