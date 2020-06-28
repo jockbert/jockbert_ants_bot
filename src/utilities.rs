@@ -72,6 +72,7 @@ pub fn positions_of(
 /// - 'E', 'e' and '>' indicates an order directed to the east.
 /// - 'N', 'n' and '^' indicates an order directed to the north.
 /// - 'S', 's', 'V' and 'v' indicates an order directed to the south.
+/// - 'P' and 'p' indicated an order to stay put (pause).
 ///
 /// # #[macro_use] extern crate crate_name;
 ///
@@ -85,10 +86,12 @@ pub fn positions_of(
 ///     orders("
 ///         --*<
 ///         -*N-
+///         -P--
 ///         "),
 ///     set![
 ///         pos(0,3).west(),
-///         pos(1,2).north()]]
+///         pos(1,2).north(),
+///         pos(2,1).pause()]];
 /// ```
 pub fn orders(multi_line_map: &'static str) -> HashSet<Order> {
     let mut result = set!();
@@ -111,6 +114,9 @@ pub fn orders(multi_line_map: &'static str) -> HashSet<Order> {
                 's' => result.insert(pos.south()),
                 'w' => result.insert(pos.west()),
                 'e' => result.insert(pos.east()),
+                // ----
+                'P' => result.insert(pos.pause()),
+                'p' => result.insert(pos.pause()),
                 _ => false,
             };
         },
