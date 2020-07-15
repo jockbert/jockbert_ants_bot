@@ -1,6 +1,13 @@
 use crate::strategy::*;
 
-pub struct Combat {}
+//enum CombatMode {
+//    StandOff,
+//    Retract
+//}
+
+pub struct Combat {
+    attack_radius_2: u16,
+}
 
 impl Strategy for Combat {
     fn apply(
@@ -26,7 +33,12 @@ mod tests {
         given()
             .attack_radius(2)
             .world_state("---b---a---")
-            .assert_orders("-------P---");
+            .assert_dist("32101234567")
+            .assert_move("-------P---")
+            //.assert_defe("---0---0---")
+            //.assert_area("xxxxxxxxxxx")
+            //.assert_dead("-----------")
+            ;
     }
 
     #[test]
@@ -35,7 +47,11 @@ mod tests {
         given()
             .attack_radius(2)
             .world_state("---b--a----")
-            .assert_orders("------>----");
+            .assert_dist("32101234567")
+            .assert_move("------>----")
+            //.assert_dead("xxxxxxx----")
+            //.assert_take("---xxxxxxx-")
+            ;
     }
 
     #[test]
@@ -44,7 +60,7 @@ mod tests {
         given()
             .attack_radius(2)
             .world_state("---b----a---")
-            .assert_orders("--------<---");
+            .assert_move("--------<---");
     }
 
     #[test]
@@ -53,7 +69,7 @@ mod tests {
         given()
             .attack_radius(2)
             .world_state("-------a---")
-            .assert_orders("-----------");
+            .assert_move("-----------");
     }
 
     #[test]
@@ -124,9 +140,13 @@ mod tests {
 
     // multiple enemies
 
+    // multiple attack clusters
+
+    // including water
+
     struct TestFixture {
         world_state: Option<&'static str>,
-        attack_radius_2: Option<u64>,
+        attack_radius_2: Option<u16>,
     }
 
     fn given() -> TestFixture {
@@ -142,28 +162,31 @@ mod tests {
             self
         }
 
-        fn attack_radius(mut self, ar: u32) -> Self {
-            self.attack_radius_2 = Some(ar as u64 * ar as u64);
+        fn attack_radius(mut self, ar: u8) -> Self {
+            self.attack_radius_2 = Some(ar as u16 * ar as u16);
             self
         }
 
-        fn assert_orders(self, ord: &'static str) {
+        fn assert_dist(self, _distance: &'static str) -> Self {
+            // let expected_distances: Vec<Vec<u8>> =
+            //    crate::utilities::value_matrix(distance);
+
+            unimplemented!();
+        }
+
+        fn assert_move(&self, ord: &'static str) -> &Self {
             let ws = self
                 .world_state
                 .expect("World State should be specified");
 
-            let _ar2 = self
-                .attack_radius_2
-                .expect("Attack radius should be specified");
-
             let world_step = AvoidWaterFilter::new_from_line_map(ws);
-
-            let ants_available: HashSet<Position> =
-                positions_of('a', ws);
 
             let expected_orders = crate::utilities::orders(ord);
 
-            let combat = Combat {};
+            let combat = self.create_combat();
+
+            let ants_available: HashSet<Position> =
+                crate::utilities::positions_of('a', ws);
 
             let actual_orders = combat
                 .apply(&world_step, &ants_available)
@@ -172,6 +195,15 @@ mod tests {
                 .collect::<HashSet<_>>();
 
             assert_eq!(expected_orders, actual_orders);
+            self
+        }
+
+        fn create_combat(&self) -> Combat {
+            Combat {
+                attack_radius_2: self
+                    .attack_radius_2
+                    .expect("Attack radius should be specified"),
+            }
         }
     }
 }
